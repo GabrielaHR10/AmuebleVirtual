@@ -1,0 +1,5 @@
+.env
+.DS_Store
+samples/videos/
+node_modules/
+.venv/
