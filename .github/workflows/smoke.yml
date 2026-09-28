@@ -1,0 +1,53 @@
+name: smoke
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+jobs:
+  smoke:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-14]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    env:
+      NO_BROWSER: "1"
+      NO_PAUSE: "1"
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10
+
+      - name: uv sync
+        working-directory: backend
+        run: uv sync
+
+      - name: Tests rápidos
+        working-directory: backend
+        run: uv run pytest -q -m "not slow"
+
+      - name: instalar.bat (Windows)
+        if: runner.os == 'Windows'
+        shell: cmd
+        run: call scripts\windows\instalar.bat
+
+      - name: Arrancar servidor (Windows, iniciar.bat)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: Start-Process -FilePath cmd.exe -ArgumentList '/c', 'scripts\windows\iniciar.bat' -WindowStyle Hidden
+
+      - name: Arrancar servidor (Mac, iniciar.command)
+        if: runner.os == 'macOS'
+        run: nohup bash scripts/mac/iniciar.command > server.log 2>&1 &
+
+      - name: GET /api/health
+        shell: bash
+        run: |
+          for i in $(seq 1 60); do
+            if curl -sf http://127.0.0.1:8000/api/health; then echo; echo "OK"; exit 0; fi
+            sleep 2
+          done
+          echo "El servidor no respondió"; cat server.log 2>/dev/null || true
+          exit 1
