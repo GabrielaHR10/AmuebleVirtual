@@ -5,7 +5,7 @@ Versión actual: 0.0.0 · Última actualización: 2026-09-28
 - [x] 0.1 Repo y documentos base — nota: estructura de §3 con `.gitkeep`, `.gitignore`, `.env.example`, `THIRD_PARTY.md`, `README.md`. `frontend/` se crea en 0.3 (Vite exige carpeta nueva).
 - [x] 0.2 Backend mínimo — nota: FastAPI con `/api/health`, `/files` y SPA desde `app/static`. `app.run` avisa en español si el puerto 8000 está ocupado; `NO_BROWSER=1` evita abrir el navegador (CI/pruebas). uv 0.12 crea layout `src/` con `uv init`: se reemplazó por `pyproject.toml` con `package = false`.
 - [x] 0.3 Frontend mínimo — nota: Vite 8 + React 19 + TS strict + three/R3F/drei + zustand + Tailwind 4; proxy `/api` y `/files`. e2e `e2e/home.spec.ts` → `frontend/test-results/home.png` (revisada: título, "Servidor conectado", cubo). Hizo falta `preserveDrawingBuffer: true` para que la captura muestre el WebGL. Lint del template es `oxlint` (MIT).
-- [ ] 0.4 Scripts de instalación/arranque — nota:
+- [x] 0.4 Scripts de instalación/arranque — nota: `scripts/mac/*.command` y `scripts/windows/*.bat`. En Mac, `instalar` además compila la interfaz si falta (repo clonado). Probado en Mac con `NO_BROWSER=1` desde otra carpeta: health OK. `.gitattributes` fuerza CRLF en `.bat`. Doble clic real: pendiente que Gabriela lo confirme.
 - [ ] 0.5 CI de humo en Windows — nota:
 - [ ] 0.6 Catálogo de medidas desde las carpetas de Gabriela — nota:
 - [ ] 🛑 Fin Fase 0: revisión con Gabriela
