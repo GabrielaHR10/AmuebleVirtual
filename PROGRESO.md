@@ -6,8 +6,8 @@ Versión actual: 0.0.0 · Última actualización: 2026-09-28
 - [x] 0.2 Backend mínimo — nota: FastAPI con `/api/health`, `/files` y SPA desde `app/static`. `app.run` avisa en español si el puerto 8000 está ocupado; `NO_BROWSER=1` evita abrir el navegador (CI/pruebas). uv 0.12 crea layout `src/` con `uv init`: se reemplazó por `pyproject.toml` con `package = false`.
 - [x] 0.3 Frontend mínimo — nota: Vite 8 + React 19 + TS strict + three/R3F/drei + zustand + Tailwind 4; proxy `/api` y `/files`. e2e `e2e/home.spec.ts` → `frontend/test-results/home.png` (revisada: título, "Servidor conectado", cubo). Hizo falta `preserveDrawingBuffer: true` para que la captura muestre el WebGL. Lint del template es `oxlint` (MIT).
 - [x] 0.4 Scripts de instalación/arranque — nota: `scripts/mac/*.command` y `scripts/windows/*.bat`. En Mac, `instalar` además compila la interfaz si falta (repo clonado). Probado en Mac con `NO_BROWSER=1` desde otra carpeta: health OK. `.gitattributes` fuerza CRLF en `.bat`. Doble clic real: pendiente que Gabriela lo confirme.
-- [ ] 0.5 CI de humo en Windows — nota:
-- [ ] 0.6 Catálogo de medidas desde las carpetas de Gabriela — nota:
+- [x] 0.5 CI de humo en Windows — nota: `.github/workflows/smoke.yml` (windows-latest + macos-14): uv sync, pytest, `instalar.bat`/`iniciar.bat` (o `iniciar.command`) y health. Run 36490331645 verde en ambos. setup-uv no publica etiqueta `v10`: fijado a `v10.2.0`.
+- [x] 0.6 Catálogo de medidas desde las carpetas de Gabriela — nota: 3 `mueble.json` + `RESUMEN_MEDIDAS.md`; `FurnitureSpec` en `schemas.py` y `tests/test_furniture_specs.py`. Mesa Gretel ambigua (ancho vs. fondo) → se pregunta en el 🛑.
 - [ ] 🛑 Fin Fase 0: revisión con Gabriela
 
 ## Fase 1

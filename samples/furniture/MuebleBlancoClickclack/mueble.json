@@ -1,0 +1,34 @@
+{
+  "id": "mueble-blanco-clickclack",
+  "name": "Sofá cama click-clack beige",
+  "category": "sofa",
+  "dimensions_cm": { "width": 203, "depth": 88, "height": 74 },
+  "extra_dimensions_cm": {},
+  "dimensions_source": "tabla_medidas",
+  "dimensions_verified": false,
+  "monthly_price_cop": null,
+  "preferred_mode": "cutout",
+  "glb_url": null,
+  "cutout_url": null,
+  "photo_url": null,
+  "thumb_url": null,
+  "yaw_offset_deg": 0,
+  "against_wall": true,
+  "source": "Fotos de prueba de Gabriela",
+  "license": "solo pruebas internas",
+  "raw_table": {
+    "Estilo": "Contemporáneo",
+    "Color": "Beige",
+    "RequiereArmado": "Si",
+    "Medidas (en cm)": "Alto: 74 Ancho: 203 Profundidad: 88",
+    "Peso Neto Kg.": "54.1",
+    "No Incluye": ""
+  },
+  "main_photo": "clickclack.png",
+  "notes": [
+    "Proporción al límite: foto ancho/alto ≈ 2.1 vs. tabla 203/74 = 2.74 (≈ 23 %, umbral 25 %). La foto es en 3/4 y desde arriba, lo que aumenta el alto aparente.",
+    "La carpeta dice 'Blanco' pero la tabla dice 'Beige'.",
+    "Es click-clack (se abre como cama): la tabla solo da las medidas cerradas.",
+    "La foto está ambientada (lámpara, planta, cojines, libros): el recorte automático puede arrastrar cosas."
+  ]
+}
