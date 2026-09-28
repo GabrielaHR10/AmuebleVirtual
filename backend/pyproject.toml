@@ -1,0 +1,38 @@
+[project]
+name = "santiago-muebles-backend"
+version = "0.0.0"
+description = "Backend del Estudio Virtual — Santiago Muebles"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "fastapi>=0.141.1",
+    "numpy>=2.5.3",
+    "pillow>=12.3.0",
+    "pydantic>=2.13.5",
+    "python-dotenv>=1.2.3",
+    "python-multipart>=0.0.32",
+    "uvicorn[standard]>=0.54.0",
+]
+
+# Fase 1: MoGe depende de `utils3d` y `pipeline` vía git+https, y en Windows puede no haber Git.
+# Usar URLs de archivo zip de GitHub fijadas a commit:
+#   moge = { url = "https://github.com/microsoft/MoGe/archive/<sha>.zip" }
+# y en [tool.uv] override-dependencies lo mismo para utils3d y pipeline.
+
+[tool.uv]
+package = false
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+markers = ["slow: tests que cargan modelos de IA (lentos)"]
+
+[tool.ruff]
+line-length = 110
+target-version = "py312"
+
+[dependency-groups]
+dev = [
+    "httpx>=0.28.1",
+    "pytest>=9.1.1",
+    "ruff>=0.16.9",
+]
