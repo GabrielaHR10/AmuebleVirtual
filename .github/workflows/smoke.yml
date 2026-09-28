@@ -18,7 +18,7 @@ jobs:
       NO_PAUSE: "1"
     steps:
       - uses: actions/checkout@v7
-      - uses: astral-sh/setup-uv@v10
+      - uses: astral-sh/setup-uv@v10.2.0
 
       - name: uv sync
         working-directory: backend
