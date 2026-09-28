@@ -8,7 +8,7 @@ Versión actual: 0.0.0 · Última actualización: 2026-09-28
 - [x] 0.4 Scripts de instalación/arranque — nota: `scripts/mac/*.command` y `scripts/windows/*.bat`. En Mac, `instalar` además compila la interfaz si falta (repo clonado). Probado en Mac con `NO_BROWSER=1` desde otra carpeta: health OK. `.gitattributes` fuerza CRLF en `.bat`. Doble clic real: pendiente que Gabriela lo confirme.
 - [x] 0.5 CI de humo en Windows — nota: `.github/workflows/smoke.yml` (windows-latest + macos-14): uv sync, pytest, `instalar.bat`/`iniciar.bat` (o `iniciar.command`) y health. Run 36490331645 verde en ambos. setup-uv no publica etiqueta `v10`: fijado a `v10.2.0`.
 - [x] 0.6 Catálogo de medidas desde las carpetas de Gabriela — nota: 3 `mueble.json` + `RESUMEN_MEDIDAS.md`; `FurnitureSpec` en `schemas.py` y `tests/test_furniture_specs.py`. Mesa Gretel ambigua (ancho vs. fondo) → se pregunta en el 🛑.
-- [ ] 🛑 Fin Fase 0: revisión con Gabriela
+- [x] 🛑 Fin Fase 0: revisión con Gabriela — nota: la app le abrió en su Mac (ve el cubo). Mesa Gretel verificada. Sofás: sin respuesta todavía, quedan `dimensions_verified: false`.
 
 ## Fase 1
 - [ ] 1.1 Ejecutar MoGe-2 — nota:
@@ -68,10 +68,11 @@ Versión actual: 0.0.0 · Última actualización: 2026-09-28
 - [ ] 7.2 Demo en vivo temporal (opcional) — nota:
 
 ## Decisiones tomadas con Gabriela
-- (ninguna todavía)
+- 2026-09-28: Mesa Gretel se deja como dice la tabla: frente (width) 80 cm, fondo (depth) 140 cm (opción B).
+- 2026-09-28: la app arranca en el Mac de Gabriela con doble clic.
 
 ## Problemas abiertos
-- (ninguno)
+- Medidas de los dos sofás (Edingburgh y click-clack) pendientes de confirmar por Gabriela.
 
 ## Mediciones
 | Foto | Dispositivo | Tiempo análisis | Altura cámara | % piso |

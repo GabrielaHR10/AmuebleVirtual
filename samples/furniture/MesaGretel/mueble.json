@@ -5,7 +5,7 @@
   "dimensions_cm": { "width": 80, "depth": 140, "height": 75 },
   "extra_dimensions_cm": {},
   "dimensions_source": "tabla_medidas",
-  "dimensions_verified": false,
+  "dimensions_verified": true,
   "monthly_price_cop": null,
   "preferred_mode": "cutout",
   "glb_url": null,
@@ -22,7 +22,7 @@
   },
   "main_photo": "mesaGretel.png",
   "notes": [
-    "AMBIGUO: transcrito tal cual (Ancho 80 → width, Profundidad 140 → depth), pero en una mesa de comedor el frente suele ser el lado largo (140). Pendiente confirmar con Gabriela.",
+    "Gabriela confirmó (2026-09-28) dejarla como dice la tabla: frente (width) 80 cm, fondo (depth) 140 cm.",
     "Proporción no concluyente: la foto está en diagonal (mesa ≈ 1.1 ancho/alto aparente; tabla 80/75 = 1.07, invertida 140/75 = 1.87).",
     "La foto incluye 4 sillas, tapete y decoración: no sirve para el recorte; se necesita una foto de la mesa sola.",
     "Es extensible: la tabla no da la medida abierta. La descripción dice 'Negro' pero en la foto la cubierta se ve de madera (patas oscuras)."
