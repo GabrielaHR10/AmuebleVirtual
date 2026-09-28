@@ -1,5 +1,33 @@
+# Secretos
 .env
+
+# Sistema
 .DS_Store
-samples/videos/
-node_modules/
+
+# Python
 .venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+
+# Node / frontend
+node_modules/
+frontend/dist/
+frontend/test-results/
+frontend/playwright-report/
+
+# Build del frontend servido por FastAPI (se genera; solo va en el release)
+backend/app/static/
+
+# Datos generados por el usuario (no versionar)
+data/scenes/*
+!data/scenes/.gitkeep
+data/videos/*
+!data/videos/.gitkeep
+
+# Material de prueba pesado
+samples/videos/
+
+# Releases
+release/
