@@ -8,7 +8,7 @@ const OUT = resolve(import.meta.dirname, '../test-results/entrega-fase2')
 
 const CASES: { photo: string; items: RegExp[]; name: string }[] = [
   { photo: 'WhatsApp Image 2026-09-28 at 10.04.07 (1).jpeg', name: '1_sala', items: [/Sofá azul Edingburgh/, /Mesa de centro moderna/, /Planta en matera/] },
-  { photo: 'WhatsApp Image 2026-09-28 at 10.04.07.jpeg', name: '2_sala_desde_la_entrada', items: [/Sofá cama click-clack/, /Sillón moderno/, /Mesa de centro redonda/] },
+  { photo: 'WhatsApp Image 2026-09-28 at 10.04.08 (1).jpeg', name: '2_estudio', items: [/Sofá cama click-clack/, /Sillón moderno/] },
   { photo: 'WhatsApp Image 2026-09-28 at 10.04.08 (2).jpeg', name: '3_alcoba', items: [/Mueble bajo de madera/, /Sillón mid-century/] },
 ]
 

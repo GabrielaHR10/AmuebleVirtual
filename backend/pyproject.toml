@@ -1,6 +1,6 @@
 [project]
 name = "santiago-muebles-backend"
-version = "0.0.0"
+version = "0.1.0"
 description = "Backend del Estudio Virtual — Santiago Muebles"
 requires-python = ">=3.12,<3.13"
 dependencies = [

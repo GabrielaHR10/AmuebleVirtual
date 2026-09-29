@@ -1,5 +1,5 @@
 # Progreso — Estudio Virtual
-Versión actual: 0.0.0 · Última actualización: 2026-09-28
+Versión actual: 0.1.0 · Última actualización: 2026-09-28
 
 ## Fase 0
 - [x] 0.1 Repo y documentos base — nota: estructura de §3 con `.gitkeep`, `.gitignore`, `.env.example`, `THIRD_PARTY.md`, `README.md`. `frontend/` se crea en 0.3 (Vite exige carpeta nueva).
@@ -33,7 +33,7 @@ Versión actual: 0.0.0 · Última actualización: 2026-09-28
 - [x] 2.9 Piso manual — nota: panel "Definir piso" si floor.found=false; 3 clics con raycast contra la malla de oclusión → `planeFromPoints` + `floorFrameFromPlane` (math.ts, testeado con los casos de coords.py) → PUT /api/scenes/{id}/floor (nuevo). Con piso manual: sin oclusión (la malla incluye el piso) y sin máscara en ¿cabe?. e2e con la foto de la ducha.
 - [x] 2.10 Exportar PNG — nota: `exportImage.ts`: foto + render 3D al tamaño natural (sin ayudas: cuadrícula/huellas/marcadores van en la capa 1, que se apaga al exportar) y máscara de muebles blanco/negro (shader con alfa para recortes, toneMapped=false). Botones "Exportar PNG" y "Máscara de muebles". e2e `photo-studio.spec.ts` (PNG > 50 KB, revisado a ojo: sofá contra la pared, mesa delante con sombra, oclusión correcta).
 - [x] 2.11 UI general (PhotoStudio) — nota: layout catálogo (búsqueda + categorías) / editor / panel (mueble, vista, escala, medidas); intensidad de sombra y exposición de muebles (0.5–1.5); avisos (toasts) en español para errores del servidor; al agregar un mueble se busca el lugar libre más cercano (primero dentro del piso visible, si no al menos sin cruces). e2e `studio-ui.spec.ts` + aviso de archivo inválido.
-- [ ] 🛑 Fin Fase 2
+- [ ] 🛑 Fin Fase 2 — nota: entregado a Gabriela: release v0.1.0 (9.1 MB, probado descomprimido: health/página/catálogo OK), 3 PNG en `entregas/fase2/`. Esperando respuestas (tamaños, diseño, catálogo semilla, enviar al hermano).
 
 ## Fase 3
 - [ ] 3.1 Grilla de ocupación — nota:
@@ -64,7 +64,7 @@ Versión actual: 0.0.0 · Última actualización: 2026-09-28
 - [ ] 🛑 Fin Fase 6
 
 ## Fase 7
-- [ ] 7.1 Release zip — nota:
+- [ ] 7.1 Release zip — nota: `scripts/crear_release.sh` + LEEME_PRIMERO.txt listos (v0.1.0 en el 🛑 de la Fase 2). Falta el job `release-smoke` de la CI (Fase 7).
 - [ ] 7.2 Demo en vivo temporal (opcional) — nota:
 
 ## Decisiones tomadas con Gabriela

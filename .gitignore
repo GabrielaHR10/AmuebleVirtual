@@ -34,3 +34,6 @@ release/
 
 # Miniaturas intermedias de make_thumbs.py
 data/catalog/*/thumb_512.png
+
+# Entregas para revisar (imágenes y zip)
+entregas/
