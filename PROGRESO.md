@@ -13,7 +13,7 @@ Versión actual: 0.0.0 · Última actualización: 2026-09-28
 ## Fase 1
 - [x] 1.1 Ejecutar MoGe-2 — nota: `moge_runner.py` + `scripts/probe_moge.py` sobre las 14 fotos. **MPS**, ~0.94 s/foto (1024 px), carga del modelo ~2.7 s. Intrínsecos **normalizados** (cx = cy = 0.500), fov_y 60–72°. MoGe `main` ya es V3 (exige flex-gemm/CUDA, sin macOS) → fijado al commit `925b8ed` (MoGe-2). `gradio` y `opencv-python` excluidos por override. `pillow-heif` quitado (GPLv2) → HEIC rechazado con mensaje; pendiente preguntar. Foto `10.04.08 (8)` es vista por la ventana (no es cuarto).
 - [x] 1.2 Conversiones y utilidades (coords.py) — nota: `cv_to_three`, `fov_y_deg`, `floor_frame`, `to_column_major` + 10 tests (§4: y<0 abajo-centro, det=+1, x_axis>0, plano sintético, cámara inclinada, d<0 invertido).
-- [ ] 1.3 Detección del piso — nota:
+- [x] 1.3 Detección del piso — nota: RANSAC del plan + 3 ajustes verificados con las fotos: (1) descartar planos a < 30 cm de la cámara (franjas falsas), (2) usar las normales de MoGe (candidatos y máscara solo en superficies que miran arriba), (3) si hay un plano horizontal ≥ 30 cm más abajo con puntos suficientes (mesón), el piso es el de abajo. 12/13 fotos de cuartos OK; la ducha (08 (5)) → piso_no_encontrado (correcto). `scripts/debug_floor.py` genera los debug.
 - [ ] 1.4 Malla de oclusión — nota:
 - [ ] 1.5 Endpoint POST /api/scenes — nota:
 - [ ] 1.6 Precarga de modelos — nota:
@@ -70,11 +70,26 @@ Versión actual: 0.0.0 · Última actualización: 2026-09-28
 ## Decisiones tomadas con Gabriela
 - 2026-09-28: Mesa Gretel se deja como dice la tabla: frente (width) 80 cm, fondo (depth) 140 cm (opción B).
 - 2026-09-28: la app arranca en el Mac de Gabriela con doble clic.
+- 2026-09-28: HEIC no se soporta (pillow-heif es GPLv2); solo JPG/PNG (opción A).
+- 2026-09-28: Gabriela pide avanzar sin preguntar lo técnico e instalar lo necesario (p. ej. Ollama).
 
 ## Problemas abiertos
 - Medidas de los dos sofás (Edingburgh y click-clack) pendientes de confirmar por Gabriela.
-- HEIC: `pillow-heif` es GPLv2 (trae x265), fuera de §0.7. Se quitó; preguntar a Gabriela si se acepta o se deja solo JPG/PNG.
 
 ## Mediciones
 | Foto | Dispositivo | Tiempo análisis | Altura cámara | % piso |
 |---|---|---|---|---|
+| 10.04.07 (1) | mps | 1.5 s (1.ª, incluye calentamiento) | 1.24 m | 36 % |
+| 10.04.07 (2) | mps | 0.96 s | 1.59 m | 12 % |
+| 10.04.07 (3) cocina | mps | 0.96 s | 1.47 m | 2 % |
+| 10.04.07 (4) | mps | 0.94 s | 1.45 m | 5 % |
+| 10.04.07 pasillo | mps | 0.94 s | 1.16 m | 19 % |
+| 10.04.08 (1) | mps | 0.96 s | 1.45 m | 11 % |
+| 10.04.08 (2) | mps | 0.94 s | 1.41 m | 21 % |
+| 10.04.08 (3) | mps | 0.96 s | 1.27 m | 6 % |
+| 10.04.08 (4) baño | mps | 0.94 s | 1.27 m | 12 % |
+| 10.04.08 (5) ducha | mps | 0.94 s | — (no se ve piso) | 0 % |
+| 10.04.08 (6) baño | mps | 0.94 s | 1.03 m | 2 % |
+| 10.04.08 (7) baño | mps | 0.94 s | 1.38 m | 4 % |
+| 10.04.08 (8) vista ventana | mps | 0.94 s | 7.63 m (patio exterior) | 8 % |
+| 10.04.08 ventana | mps | 0.96 s | 1.32 m | 1 % |
