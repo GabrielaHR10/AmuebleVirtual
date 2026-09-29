@@ -12,7 +12,7 @@ Versión actual: 0.0.0 · Última actualización: 2026-09-28
 
 ## Fase 1
 - [x] 1.1 Ejecutar MoGe-2 — nota: `moge_runner.py` + `scripts/probe_moge.py` sobre las 14 fotos. **MPS**, ~0.94 s/foto (1024 px), carga del modelo ~2.7 s. Intrínsecos **normalizados** (cx = cy = 0.500), fov_y 60–72°. MoGe `main` ya es V3 (exige flex-gemm/CUDA, sin macOS) → fijado al commit `925b8ed` (MoGe-2). `gradio` y `opencv-python` excluidos por override. `pillow-heif` quitado (GPLv2) → HEIC rechazado con mensaje; pendiente preguntar. Foto `10.04.08 (8)` es vista por la ventana (no es cuarto).
-- [ ] 1.2 Conversiones y utilidades (coords.py) — nota:
+- [x] 1.2 Conversiones y utilidades (coords.py) — nota: `cv_to_three`, `fov_y_deg`, `floor_frame`, `to_column_major` + 10 tests (§4: y<0 abajo-centro, det=+1, x_axis>0, plano sintético, cámara inclinada, d<0 invertido).
 - [ ] 1.3 Detección del piso — nota:
 - [ ] 1.4 Malla de oclusión — nota:
 - [ ] 1.5 Endpoint POST /api/scenes — nota:
