@@ -54,3 +54,65 @@ class FurnitureSpec(BaseModel):
         if bad:
             raise ValueError(f"Medidas extra deben ser > 0: {', '.join(bad)}")
         return self
+
+
+# ---------- Escena (PLAN §5.1) ----------
+
+class ImageInfo(BaseModel):
+    url: str
+    width: int
+    height: int
+
+
+class CameraInfo(BaseModel):
+    fov_y_deg: float
+    intrinsics_norm: list[list[float]]
+    matrix_world: list[float]  # 16 números column-major
+
+
+class FloorInfo(BaseModel):
+    found: bool
+    normal: list[float] | None = None
+    d: float | None = None
+    inlier_ratio: float = 0.0
+    frame: list[float] | None = None  # 16 números column-major
+
+
+class FloorExtent(BaseModel):
+    width: float
+    depth: float
+
+
+class RoomEstimate(BaseModel):
+    visible_floor_area_m2: float | None = None
+    floor_extent_m: FloorExtent | None = None
+    ceiling_height_m: float | None = None
+    confidence: Literal["alta", "media", "baja"]
+    method: str = "moge2_metric"
+
+
+class Placement(BaseModel):
+    uid: str
+    item_id: str
+    mode: Literal["3d", "cutout"] = "cutout"
+    x: float
+    z: float
+    yaw_deg: float = 0
+    source: Literal["manual", "heuristic", "vlm"] = "manual"
+
+
+class Scene(BaseModel):
+    id: str
+    kind: Literal["photo"] = "photo"
+    image: ImageInfo
+    camera: CameraInfo
+    floor: FloorInfo
+    camera_height_m: float | None = None
+    scale_k: float = 1.0
+    room_estimate: RoomEstimate | None = None
+    warnings: list[str] = Field(default_factory=list)
+    assets: dict[str, str] = Field(default_factory=dict)
+    placements: list[Placement] = Field(default_factory=list)
+    model: str
+    timings_ms: dict[str, int] = Field(default_factory=dict)
+    created_at: str | None = None

@@ -4,7 +4,7 @@ from fastapi import APIRouter, FastAPI, HTTPException
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
-from app import __version__
+from app import __version__, scenes
 from app.config import DATA_DIR, STATIC_DIR, resolve_device
 
 app = FastAPI(title="Estudio Virtual — Santiago Muebles", version=__version__)
@@ -17,6 +17,7 @@ def health() -> dict:
     return {"ok": True, "device": resolve_device(), "version": __version__}
 
 
+api.include_router(scenes.router)
 app.include_router(api)
 
 DATA_DIR.mkdir(parents=True, exist_ok=True)
