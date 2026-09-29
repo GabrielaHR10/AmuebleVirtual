@@ -31,3 +31,6 @@ samples/videos/
 
 # Releases
 release/
+
+# Miniaturas intermedias de make_thumbs.py
+data/catalog/*/thumb_512.png

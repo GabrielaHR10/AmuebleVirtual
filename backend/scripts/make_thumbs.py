@@ -21,7 +21,7 @@ from app.config import REPO_DIR
 
 
 def main() -> None:
-    env = {**os.environ, "E2E_PORT": os.environ.get("E2E_PORT", "8001")}
+    env = {**os.environ, "E2E_PORT": os.environ.get("E2E_PORT", "8001"), "MAKE_THUMBS": "1"}
     subprocess.run(["npx", "playwright", "test", "e2e/thumbs.spec.ts"], cwd=REPO_DIR / "frontend",
                    env=env, check=True)
     for item in service.list_items():

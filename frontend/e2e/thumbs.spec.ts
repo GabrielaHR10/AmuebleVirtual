@@ -16,6 +16,8 @@ interface Item {
 }
 
 test('miniaturas de los modelos 3D', async ({ page, request }) => {
+  // Solo corre cuando lo pide scripts/make_thumbs.py (escribe en data/catalog/)
+  test.skip(!process.env.MAKE_THUMBS && !debugView, 'Generación de miniaturas: usar scripts/make_thumbs.py')
   test.setTimeout(300_000)
   const items = ((await (await request.get('/api/catalog')).json()) as Item[]).filter((i) => i.glb_url)
   expect(items.length).toBeGreaterThan(0)
