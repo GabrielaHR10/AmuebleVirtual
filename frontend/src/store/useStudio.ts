@@ -43,7 +43,9 @@ interface StudioState {
   setGhosts: (g: { placements: Placement[]; notes: string[]; replaceUids: string[] } | null) => void
   /** Ajustes de vista (PLAN 2.11). */
   shadowOpacity: number
-  setView: (v: { shadowOpacity?: number }) => void
+  /** Opacidad del reflejo de los muebles en el piso (0 = sin reflejo). */
+  reflection: number
+  setView: (v: { shadowOpacity?: number; reflection?: number }) => void
   /** Luz que imita la de la foto (PLAN 4.1); se ajusta sola al cargar la escena. */
   light: LightSettings
   setLight: (patch: Partial<LightSettings>) => void
@@ -133,6 +135,7 @@ export const useStudio = create<StudioState>((set) => ({
   ghosts: null,
   setGhosts: (ghosts) => set({ ghosts }),
   shadowOpacity: 0.3,
+  reflection: 0.12,
   setView: (v) => set(v),
   light: DEFAULT_LIGHT,
   setLight: (patch) => set((s) => ({ light: { ...s.light, ...patch } })),

@@ -133,7 +133,7 @@ function ExportButtons() {
 }
 
 function ViewSliders() {
-  const { shadowOpacity, setView, light, setLight, scene } = useStudio()
+  const { shadowOpacity, reflection, setView, light, setLight, scene } = useStudio()
   const slider = (label: string, value: number, min: number, max: number, step: number, on: (v: number) => void) => (
     <label className="block">
       {label}
@@ -152,6 +152,7 @@ function ViewSliders() {
         </button>
       </div>
       {slider(`Intensidad de sombra: ${Math.round(shadowOpacity * 100)} %`, shadowOpacity, 0, 0.8, 0.05, (v) => setView({ shadowOpacity: v }))}
+      {slider(`Reflejo en el piso: ${Math.round(reflection * 100)} %`, reflection, 0, 0.35, 0.01, (v) => setView({ reflection: v }))}
       {slider(`Dirección de la luz: ${Math.round(light.azimuth)}°`, light.azimuth, 0, 359, 1, (v) => setLight({ azimuth: v }))}
       {slider(`Altura de la luz: ${Math.round(light.elevation)}°`, light.elevation, 10, 80, 1, (v) => setLight({ elevation: v }))}
       {slider(`Luz ambiente: ${light.hemiIntensity.toFixed(2)}`, light.hemiIntensity, 0.3, 1.5, 0.05, (v) => setLight({ hemiIntensity: v }))}

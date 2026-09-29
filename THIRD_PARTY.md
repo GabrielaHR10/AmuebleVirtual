@@ -24,12 +24,12 @@ Cada modelo o asset que use el proyecto se registra aquí.
 | Poly Haven `potted_plant_02` | modelo 3D | https://polyhaven.com/a/potted_plant_02 | CC0 | Catálogo semilla |
 | Poly Haven HDRI `lebombo` (1k) | iluminación | https://polyhaven.com/a/lebombo | CC0 | `frontend/public/hdri/room_1k.hdr` |
 | glTF-Transform CLI | herramienta (solo al crear el catálogo) | https://gltf-transform.dev | MIT | Convertir/optimizar GLB |
-| gradio_client | librería | https://github.com/gradio-app/gradio | Apache-2.0 | Llamar al Space de Hugging Face (retoque IA) |
-| Qwen-Image-Edit (Space oficial `Qwen/Qwen-Image-Edit`) | modelo remoto | https://huggingface.co/spaces/Qwen/Qwen-Image-Edit | Apache-2.0 | Retoque IA (en evaluación) |
 | onnxruntime | librería | https://github.com/microsoft/onnxruntime | MIT | Ejecuta los modelos de recorte |
 
 **No usado por licencia:** `pillow-heif` (el plan lo pedía para HEIC) — sus wheels traen x265 y quedan **GPLv2**.
 Decisión de Gabriela (2026-09-28): solo JPG/PNG.
+
+**Evaluado y descartado:** retoque con Qwen-Image-Edit en Hugging Face (Apache-2.0): cambia el cuarto y la cuota gratis alcanza para 1 imagen al día.
 
 ## Material de prueba
 Las fotos de muebles de tiendas en `samples/furniture/` son **solo para pruebas internas**: no se publican

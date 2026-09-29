@@ -1,6 +1,6 @@
 import { useEffect, useMemo } from 'react'
 import { useGLTF } from '@react-three/drei'
-import { Box3, Group, Mesh, Vector3, type Material } from 'three'
+import { Box3, DoubleSide, Group, Mesh, Vector3, type Material } from 'three'
 import type { CatalogItem } from '../api/client'
 
 export interface ModelFit {
@@ -13,19 +13,26 @@ export interface ModelFit {
  * Prepara un GLB para el piso: aplica yaw_offset, centra en x/z, apoya min y en 0 y escala
  * uniforme para que el ANCHO sea el de la ficha (PLAN 2.7). Avisa si el alto difiere > 15 %.
  */
-export function fitModel(source: Group, item: CatalogItem, scaleK: number, ghost = false): ModelFit {
+/** Aspecto especial: fantasma (sugerencia) o reflejo en el piso. */
+export interface Look {
+  opacity: number
+  doubleSide?: boolean
+}
+
+export function fitModel(source: Group, item: CatalogItem, scaleK: number, look?: Look): ModelFit {
   const inner = source.clone(true)
   inner.traverse((o) => {
     if (o instanceof Mesh) {
-      o.castShadow = !ghost
-      o.receiveShadow = true
-      if (ghost) {
+      o.castShadow = !look
+      o.receiveShadow = !look
+      if (look) {
         // material propio (clonado) para no volver transparentes los muebles reales
         const mats = (Array.isArray(o.material) ? o.material : [o.material]).map((m: Material) => {
           const c = m.clone()
           c.transparent = true
-          c.opacity = 0.45
+          c.opacity = look.opacity
           c.depthWrite = false
+          if (look.doubleSide) c.side = DoubleSide // el reflejo (escala y = −1) invierte las caras
           return c
         })
         o.material = Array.isArray(o.material) ? mats : mats[0]
@@ -59,11 +66,18 @@ interface Props {
   scaleK: number
   onFit?: (fit: ModelFit) => void
   ghost?: boolean
+  /** Opacidad del reflejo (> 0 → se dibuja invertido bajo el piso). */
+  reflection?: number
 }
 
-export default function FurnitureModel({ item, scaleK, onFit, ghost = false }: Props) {
+const GHOST_LOOK: Look = { opacity: 0.45 }
+
+export default function FurnitureModel({ item, scaleK, onFit, ghost = false, reflection = 0 }: Props) {
   const { scene } = useGLTF(item.glb_url!)
-  const fit = useMemo(() => fitModel(scene, item, scaleK, ghost), [scene, item, scaleK, ghost])
+  const look = ghost ? GHOST_LOOK : reflection > 0 ? { opacity: reflection, doubleSide: true } : undefined
+  const lookKey = look ? `${look.opacity}-${look.doubleSide}` : ''
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const fit = useMemo(() => fitModel(scene, item, scaleK, look), [scene, item, scaleK, lookKey])
   useEffect(() => onFit?.(fit), [fit, onFit])
   return <primitive object={fit.object} />
 }

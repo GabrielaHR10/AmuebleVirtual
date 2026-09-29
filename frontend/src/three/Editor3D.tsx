@@ -1,6 +1,6 @@
 import { Suspense, useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { Canvas, useThree, type ThreeEvent } from '@react-three/fiber'
-import { Environment } from '@react-three/drei'
+import { Environment, SoftShadows } from '@react-three/drei'
 import { Matrix4, Object3D, PerspectiveCamera, type DirectionalLight } from 'three'
 import type { Scene } from '../api/client'
 import { useStudio, type Toggles } from '../store/useStudio'
@@ -145,6 +145,8 @@ export default function Editor3D({ scene, toggles, children, onFloorPointerMisse
             gl={{ alpha: true, preserveDrawingBuffer: true, antialias: true }}
             onPointerMissed={onFloorPointerMissed}
           >
+            {/* sombras de borde suave (PCSS): la luz de una ventana es difusa */}
+            <SoftShadows size={5} samples={12} focus={0.3} />
             <SceneCamera scene={scene} />
             <ExportBridge />
             <Exposure />

@@ -84,6 +84,7 @@ interface PlacedProps {
 
 function Placed({ p, item, selected, fit, scaleK, onDown }: PlacedProps) {
   const setModelWarning = useStudio((s) => s.setModelWarning)
+  const reflection = useStudio((s) => s.reflection)
   const onFit = useCallback((f: ModelFit) => setModelWarning(item.id, f.warning), [item.id, setModelWarning])
   const w = (item.dimensions_cm.width / 100) * scaleK
   const d = (item.dimensions_cm.depth / 100) * scaleK
@@ -97,7 +98,14 @@ function Placed({ p, item, selected, fit, scaleK, onDown }: PlacedProps) {
       userData={{ furniture: true }}
     >
       {p.mode === '3d' && item.glb_url ? (
-        <FurnitureModel item={item} scaleK={scaleK} onFit={onFit} />
+        <>
+          <FurnitureModel item={item} scaleK={scaleK} onFit={onFit} />
+          {reflection > 0 && (
+            <group scale-y={-1} userData={{ noMask: true }}>
+              <FurnitureModel item={item} scaleK={scaleK} reflection={reflection * 0.6} />
+            </group>
+          )}
+        </>
       ) : (
         <CutoutBillboard item={item} scaleK={scaleK} />
       )}
