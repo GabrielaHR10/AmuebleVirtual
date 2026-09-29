@@ -176,6 +176,33 @@ def get_scene(scene_id: str) -> Scene:
     return load_scene(scene_id)
 
 
+class ManualFloorBody(BaseModel):
+    normal: list[float] = Field(min_length=3, max_length=3)
+    d: float = Field(gt=0.1, lt=10.0)
+
+
+@router.put("/{scene_id}/floor", response_model=Scene)
+def put_floor(scene_id: str, body: ManualFloorBody) -> Scene:
+    """Piso definido a mano con 3 clics (PLAN 2.9). Plano en coords three de la cámara."""
+    n = np.asarray(body.normal, dtype=np.float64)
+    if np.linalg.norm(n) < 1e-6:
+        raise HTTPException(422, "Plano inválido")
+    n = n / np.linalg.norm(n)
+    try:
+        frame = floor_frame(n, body.d)
+    except ValueError as e:
+        raise HTTPException(422, "Ese plano no sirve como piso: marca 3 puntos del piso más separados.") from e
+    with _save_lock:
+        scene = load_scene(scene_id)
+        floor = FloorInfo(found=True, normal=[round(float(v), 5) for v in n], d=round(body.d, 4),
+                          inlier_ratio=0.0, frame=to_column_major(frame))
+        warnings = [w for w in scene.warnings if w != "piso_no_encontrado"] + ["piso_manual"]
+        scene = scene.model_copy(update={"floor": floor, "camera_height_m": round(body.d, 3),
+                                         "warnings": sorted(set(warnings))})
+        write_json_atomic(scene_dir(scene_id) / "scene.json", scene.model_dump())
+    return scene
+
+
 class PlacementsBody(BaseModel):
     placements: list[Placement]
     scale_k: float = Field(default=1.0, gt=0.2, lt=5.0)

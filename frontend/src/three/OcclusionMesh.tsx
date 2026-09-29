@@ -1,4 +1,5 @@
 import { useLayoutEffect } from 'react'
+import type { ThreeEvent } from '@react-three/fiber'
 import { useGLTF } from '@react-three/drei'
 import { Mesh, MeshBasicMaterial } from 'three'
 
@@ -6,7 +7,12 @@ import { Mesh, MeshBasicMaterial } from 'three'
 // de paredes u objetos reales. Va FUERA del grupo del piso (PLAN §4).
 const material = new MeshBasicMaterial({ colorWrite: false })
 
-export default function OcclusionMesh({ url }: { url: string }) {
+interface Props {
+  url: string
+  onPick?: (e: ThreeEvent<MouseEvent>) => void // piso manual: clic sobre la superficie de la foto
+}
+
+export default function OcclusionMesh({ url, onPick }: Props) {
   const { scene } = useGLTF(url)
   useLayoutEffect(() => {
     scene.traverse((o) => {
@@ -17,5 +23,5 @@ export default function OcclusionMesh({ url }: { url: string }) {
       }
     })
   }, [scene])
-  return <primitive object={scene} />
+  return <primitive object={scene} onClick={onPick} />
 }

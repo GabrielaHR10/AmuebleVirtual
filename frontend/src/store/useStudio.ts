@@ -34,6 +34,9 @@ interface StudioState {
   /** Calibración de escala (PLAN 2.8): puntos del piso (x, z) marcados por el usuario. */
   calibration: { active: boolean; points: [number, number][] }
   setCalibration: (c: { active: boolean; points: [number, number][] }) => void
+  /** Piso manual (PLAN 2.9): puntos 3D (coords de cámara) marcados sobre la foto. */
+  manualFloor: { active: boolean; points: [number, number, number][] }
+  setManualFloor: (m: { active: boolean; points: [number, number, number][] }) => void
   /** Avisos de los modelos 3D (alto del GLB ≠ ficha), por item_id. */
   modelWarnings: Record<string, string | null>
   setModelWarning: (itemId: string, warning: string | null) => void
@@ -76,6 +79,7 @@ export const useStudio = create<StudioState>((set) => ({
       past: [],
       future: [],
       calibration: { active: false, points: [] },
+      manualFloor: { active: false, points: [] },
     }),
   setCatalog: (catalog) => set({ catalog }),
   toggle: (key) =>
@@ -109,6 +113,8 @@ export const useStudio = create<StudioState>((set) => ({
   setScaleK: (scaleK) => set({ scaleK }),
   calibration: { active: false, points: [] },
   setCalibration: (calibration) => set({ calibration }),
+  manualFloor: { active: false, points: [] },
+  setManualFloor: (manualFloor) => set({ manualFloor }),
   modelWarnings: {},
   setModelWarning: (itemId, warning) =>
     set((s) => (s.modelWarnings[itemId] === warning ? {} : { modelWarnings: { ...s.modelWarnings, [itemId]: warning } })),

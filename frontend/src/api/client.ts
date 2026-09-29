@@ -144,3 +144,13 @@ export async function savePlacements(id: string, placements: Placement[], scaleK
     }),
   )
 }
+
+export async function saveManualFloor(id: string, normal: number[], d: number): Promise<Scene> {
+  return parse<Scene>(
+    await fetch(`/api/scenes/${encodeURIComponent(id)}/floor`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ normal, d }),
+    }),
+  )
+}

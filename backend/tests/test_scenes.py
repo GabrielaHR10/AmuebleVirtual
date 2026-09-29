@@ -102,3 +102,17 @@ def test_real_rooms(data_dir):
     print("\n".join(report))
     # Algunas fotos de prueba no muestran piso (ducha, vista por la ventana): se exige la gran mayoría
     assert ok >= 0.8 * len(ROOM_PHOTOS), "\n".join(report)
+
+
+def test_manual_floor(data_dir, monkeypatch):
+    monkeypatch.setattr(scenes, "run_moge", fake_moge)
+    client = TestClient(app)
+    scene = client.post("/api/scenes", files={"file": ("x.jpg", _jpeg(), "image/jpeg")}).json()
+    res = client.put(f"/api/scenes/{scene['id']}/floor", json={"normal": [0, 2, 0], "d": 1.3})
+    assert res.status_code == 200, res.text
+    body = res.json()
+    assert body["floor"]["found"] and body["floor"]["normal"] == [0, 1, 0]
+    assert body["camera_height_m"] == 1.3 and "piso_manual" in body["warnings"]
+    assert body["floor"]["frame"][13] == pytest.approx(-1.3)  # origen (0, -d, 0), column-major
+    vertical = client.put(f"/api/scenes/{scene['id']}/floor", json={"normal": [0, 0, 1], "d": 1.3})
+    assert vertical.status_code == 422

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { getCatalog, getScene, getScenes, savePlacements, uploadScene, type Scene } from '../api/client'
 import CalibrationPanel from '../components/CalibrationPanel'
 import CatalogPanel from '../components/CatalogPanel'
+import ManualFloorPanel from '../components/ManualFloorPanel'
 import RoomEstimateCard from '../components/RoomEstimateCard'
 import SelectedPanel from '../components/SelectedPanel'
 import { useEditorKeys } from '../hooks/useEditorKeys'
@@ -123,6 +124,7 @@ export default function PhotoStudio() {
         </div>
         {scene && (
           <aside className="w-72 space-y-3 overflow-y-auto border-l border-stone-200 bg-stone-50 p-3">
+            <ManualFloorPanel />
             <SelectedPanel />
             <p data-testid="save-status" className="text-xs text-stone-500">
               {{ idle: '', saving: 'Guardando…', saved: 'Cambios guardados', error: 'No se pudo guardar' }[saveStatus]}

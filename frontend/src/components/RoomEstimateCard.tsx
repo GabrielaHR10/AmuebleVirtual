@@ -5,6 +5,7 @@ const WARNING_TEXT: Record<string, string> = {
   piso_no_encontrado: 'No se encontró el piso en la foto.',
   escala_dudosa: 'La escala puede estar mal (altura de cámara rara). Usa "Calibrar medida".',
   poco_piso_visible: 'Se ve poco piso: las medidas son menos confiables.',
+  piso_manual: 'Piso definido a mano: sin oclusión ni medidas del espacio. Usa "Calibrar medida" si conoces una medida.',
 }
 
 export default function RoomEstimateCard({ scene }: { scene: Scene }) {

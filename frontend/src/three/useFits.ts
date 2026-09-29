@@ -54,7 +54,7 @@ export function useFits(): Record<string, FitResult> {
       .map((p) => ({ p, item: byId.get(p.item_id) }))
       .filter((x): x is { p: (typeof placements)[number]; item: CatalogItem } => !!x.item)
     const ctx = {
-      mask,
+      mask: scene.warnings.includes('piso_manual') ? null : mask, // piso manual: no hay máscara
       frame: new Matrix4().fromArray(scene.floor.frame),
       cameraWorld: new Matrix4().fromArray(scene.camera.matrix_world),
       intrinsics: scene.camera.intrinsics_norm,

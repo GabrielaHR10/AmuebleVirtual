@@ -1,9 +1,9 @@
 import { Suspense, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react'
-import { Canvas, useThree } from '@react-three/fiber'
+import { Canvas, useThree, type ThreeEvent } from '@react-three/fiber'
 import { Environment } from '@react-three/drei'
 import { Matrix4, Object3D, PerspectiveCamera, type DirectionalLight } from 'three'
 import type { Scene } from '../api/client'
-import type { Toggles } from '../store/useStudio'
+import { useStudio, type Toggles } from '../store/useStudio'
 import { dropPoint } from './math'
 import FloorGrid from './FloorGrid'
 import OcclusionMesh from './OcclusionMesh'
@@ -53,6 +53,22 @@ function FloorLights({ target }: { target: [number, number, number] }) {
   )
 }
 
+/** Puntos marcados para el piso manual (coords de cámara/mundo, fuera del grupo del piso). */
+function ManualFloorMarks() {
+  const manual = useStudio((s) => s.manualFloor)
+  if (!manual.active) return null
+  return (
+    <>
+      {manual.points.map((p, i) => (
+        <mesh key={i} position={p} renderOrder={5}>
+          <sphereGeometry args={[0.03, 16, 16]} />
+          <meshBasicMaterial color="#f59e0b" depthTest={false} />
+        </mesh>
+      ))}
+    </>
+  )
+}
+
 /** Tamaño en pantalla de la foto dentro del contenedor, conservando su proporción (letterbox). */
 function useLetterbox(aspect: number) {
   const ref = useRef<HTMLDivElement>(null)
@@ -89,6 +105,14 @@ export default function Editor3D({ scene, toggles, children, onFloorPointerMisse
     return [p.x, 0, p.z]
   }, [frame, scene])
   const maskUrl = scene.assets.floor_mask_png
+  const manualActive = useStudio((s) => s.manualFloor.active)
+  const onPick = (e: ThreeEvent<MouseEvent>) => {
+    const { manualFloor, setManualFloor } = useStudio.getState()
+    if (!manualFloor.active || manualFloor.points.length >= 3) return
+    e.stopPropagation()
+    const p = e.point
+    setManualFloor({ active: true, points: [...manualFloor.points, [p.x, p.y, p.z]] })
+  }
 
   return (
     <div ref={ref} className="relative flex h-full w-full items-center justify-center overflow-hidden bg-stone-900">
@@ -108,9 +132,14 @@ export default function Editor3D({ scene, toggles, children, onFloorPointerMisse
             onPointerMissed={onFloorPointerMissed}
           >
             <SceneCamera scene={scene} />
+            <ManualFloorMarks />
             <Suspense fallback={null}>
               <Environment files="/hdri/room_1k.hdr" environmentIntensity={0.6} background={false} />
-              {toggles.occlusion && scene.assets.occlusion_glb && <OcclusionMesh url={scene.assets.occlusion_glb} />}
+              {/* Con piso manual la malla incluye el piso real y taparía los muebles: solo se usa para marcar */}
+              {((toggles.occlusion && !scene.warnings.includes('piso_manual')) || manualActive) &&
+                scene.assets.occlusion_glb && (
+                <OcclusionMesh url={scene.assets.occlusion_glb} onPick={manualActive ? onPick : undefined} />
+              )}
             </Suspense>
             {frame && (
               <group matrixAutoUpdate={false} matrix={frame}>
