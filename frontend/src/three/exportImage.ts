@@ -63,6 +63,14 @@ function renderAt(width: number, height: number, prepare?: (s: ThreeScene, gl: W
   gl.setSize(width, height, false)
   camera.aspect = width / height
   camera.updateProjectionMatrix()
+  // los fantasmas (sugerencias sin aceptar) nunca se exportan
+  const ghosts: Object3D[] = []
+  scene.traverse((o) => {
+    if (o.userData.ghost && o.visible) {
+      ghosts.push(o)
+      o.visible = false
+    }
+  })
   const undo = prepare?.(scene, gl)
   const out = document.createElement('canvas')
   out.width = width
@@ -72,6 +80,7 @@ function renderAt(width: number, height: number, prepare?: (s: ThreeScene, gl: W
     out.getContext('2d')!.drawImage(gl.domElement, 0, 0, width, height)
   } finally {
     undo?.()
+    ghosts.forEach((o) => (o.visible = true))
     camera.layers.enable(HELPER_LAYER)
     gl.setPixelRatio(ratio)
     gl.setSize(size.x, size.y, false)

@@ -5,6 +5,7 @@ import CatalogPanel from '../components/CatalogPanel'
 import ManualFloorPanel from '../components/ManualFloorPanel'
 import RoomEstimateCard from '../components/RoomEstimateCard'
 import SelectedPanel from '../components/SelectedPanel'
+import SuggestPanel from '../components/SuggestPanel'
 import Toasts from '../components/Toasts'
 import { useEditorKeys } from '../hooks/useEditorKeys'
 import { useStudio, type Toggles } from '../store/useStudio'
@@ -210,6 +211,7 @@ export default function PhotoStudio() {
         {scene && (
           <aside className="w-72 space-y-3 overflow-y-auto border-l border-stone-200 bg-stone-50 p-3">
             <ManualFloorPanel />
+            <SuggestPanel />
             <SelectedPanel />
             <p data-testid="save-status" className="text-xs text-stone-500">
               {{ idle: '', saving: 'Guardando…', saved: 'Cambios guardados', error: 'No se pudo guardar' }[saveStatus]}

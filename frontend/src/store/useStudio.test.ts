@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import type { CatalogItem } from '../api/client'
 import {
+  acceptGhosts,
   addPlacement,
   duplicatePlacement,
   removePlacement,
@@ -65,5 +66,29 @@ describe('calibración de escala', () => {
     expect(scaleFromCalibration([[0, 0]], 100)).toBeNull()
     expect(scaleFromCalibration([[0, 0], [3, 0]], 0)).toBeNull()
     expect(scaleFromCalibration([[0, 0], [3, 0]], 10)).toBeNull()
+  })
+})
+
+describe('sugerencias (fantasmas)', () => {
+  beforeEach(() => useStudio.getState().setScene(null))
+  it('aceptar todas reemplaza los muebles que se reacomodaban', () => {
+    addPlacement(sofa, 0, -3)
+    const old = useStudio.getState().placements[0]
+    const ghost = { ...old, uid: 'g1', x: 1, z: -4, source: 'heuristic' as const }
+    useStudio.getState().setGhosts({ placements: [ghost], notes: [], replaceUids: [old.uid] })
+    acceptGhosts()
+    const ps = useStudio.getState().placements
+    expect(ps).toHaveLength(1)
+    expect(ps[0].uid).toBe('g1')
+    expect(useStudio.getState().ghosts).toBeNull()
+    useStudio.getState().undo()
+    expect(useStudio.getState().placements[0].uid).toBe(old.uid)
+  })
+  it('aceptar una deja las demás pendientes', () => {
+    const g = (uid: string) => ({ uid, item_id: 'sofa', mode: 'cutout' as const, x: 0, z: -3, yaw_deg: 0, source: 'heuristic' as const })
+    useStudio.getState().setGhosts({ placements: [g('a'), g('b')], notes: [], replaceUids: [] })
+    acceptGhosts('a')
+    expect(useStudio.getState().placements.map((p) => p.uid)).toEqual(['a'])
+    expect(useStudio.getState().ghosts!.placements.map((p) => p.uid)).toEqual(['b'])
   })
 })

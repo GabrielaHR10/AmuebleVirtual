@@ -37,6 +37,9 @@ interface StudioState {
   /** Piso manual (PLAN 2.9): puntos 3D (coords de cámara) marcados sobre la foto. */
   manualFloor: { active: boolean; points: [number, number, number][] }
   setManualFloor: (m: { active: boolean; points: [number, number, number][] }) => void
+  /** Sugerencias pendientes (PLAN 3.4): se ven como fantasmas hasta aceptarlas. */
+  ghosts: { placements: Placement[]; notes: string[]; replaceUids: string[] } | null
+  setGhosts: (g: { placements: Placement[]; notes: string[]; replaceUids: string[] } | null) => void
   /** Ajustes de vista (PLAN 2.11). */
   shadowOpacity: number
   exposure: number
@@ -88,6 +91,7 @@ export const useStudio = create<StudioState>((set) => ({
       future: [],
       calibration: { active: false, points: [] },
       manualFloor: { active: false, points: [] },
+      ghosts: null,
     }),
   setCatalog: (catalog) => set({ catalog }),
   toggle: (key) =>
@@ -123,6 +127,8 @@ export const useStudio = create<StudioState>((set) => ({
   setCalibration: (calibration) => set({ calibration }),
   manualFloor: { active: false, points: [] },
   setManualFloor: (manualFloor) => set({ manualFloor }),
+  ghosts: null,
+  setGhosts: (ghosts) => set({ ghosts }),
   shadowOpacity: 0.3,
   exposure: 1,
   setView: (v) => set(v),
@@ -182,4 +188,21 @@ export function scaleFromCalibration(points: [number, number][], realCm: number)
   const scene = Math.hypot(x2 - x1, z2 - z1)
   const k = scene / (realCm / 100)
   return k > 0.2 && k < 5 ? k : null
+}
+
+/** Aceptar sugerencias: todas o solo una (por uid). Reemplaza los muebles que se estaban reacomodando. */
+export function acceptGhosts(uid?: string) {
+  const { ghosts, placements, commit, setGhosts } = useStudio.getState()
+  if (!ghosts) return
+  const accepted = uid ? ghosts.placements.filter((g) => g.uid === uid) : ghosts.placements
+  const acceptedItems = accepted.map((g) => g.item_id)
+  // al reacomodar, el fantasma reemplaza al mueble puesto del mismo tipo que se estaba moviendo
+  const toRemove = new Set<string>()
+  for (const itemId of acceptedItems) {
+    const old = placements.find((p) => ghosts.replaceUids.includes(p.uid) && p.item_id === itemId && !toRemove.has(p.uid))
+    if (old) toRemove.add(old.uid)
+  }
+  commit([...placements.filter((p) => !toRemove.has(p.uid)), ...accepted])
+  const rest = ghosts.placements.filter((g) => !accepted.includes(g))
+  setGhosts(rest.length ? { ...ghosts, placements: rest, replaceUids: ghosts.replaceUids.filter((u) => !toRemove.has(u)) } : null)
 }

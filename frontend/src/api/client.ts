@@ -154,3 +154,27 @@ export async function saveManualFloor(id: string, normal: number[], d: number): 
     }),
   )
 }
+
+export interface SuggestResponse {
+  placements: Placement[]
+  notes: string[]
+}
+
+export async function suggestPlacements(
+  id: string,
+  itemIds: string[],
+  useVlm: boolean,
+  replaceUids: string[],
+): Promise<SuggestResponse> {
+  return parse<SuggestResponse>(
+    await fetch(`/api/scenes/${encodeURIComponent(id)}/suggest`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ item_ids: itemIds, use_vlm: useVlm, replace_uids: replaceUids }),
+    }),
+  )
+}
+
+export async function getVlmStatus(): Promise<{ available: boolean; model: string; reason: string | null }> {
+  return parse(await fetch('/api/scenes/vlm/status'))
+}

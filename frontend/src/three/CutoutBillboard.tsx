@@ -31,7 +31,7 @@ const FRONT_SHIFT = 0.4 // fracción del fondo que se adelanta el plano hacia la
  * Mueble en "modo recorte 2D": plano con la foto sin fondo, apoyado en el piso, que gira solo en yaw
  * para mirar siempre a la cámara. Sombra de contacto de width × depth (PLAN 2.7).
  */
-export default function CutoutBillboard({ item, scaleK }: { item: CatalogItem; scaleK: number }) {
+export default function CutoutBillboard({ item, scaleK, ghost = false }: { item: CatalogItem; scaleK: number; ghost?: boolean }) {
   const texture = useTexture(item.cutout_url!)
   texture.colorSpace = SRGBColorSpace
   const plane = useRef<Mesh>(null)
@@ -63,7 +63,9 @@ export default function CutoutBillboard({ item, scaleK }: { item: CatalogItem; s
           map={texture}
           color={[exposure, exposure, exposure]}
           transparent
-          alphaTest={0.5}
+          opacity={ghost ? 0.45 : 1}
+          depthWrite={!ghost}
+          alphaTest={ghost ? 0.05 : 0.5}
           side={DoubleSide}
           toneMapped={false}
         />

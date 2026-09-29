@@ -1,6 +1,6 @@
 import { useEffect, useMemo } from 'react'
 import { useGLTF } from '@react-three/drei'
-import { Box3, Group, Mesh, Vector3 } from 'three'
+import { Box3, Group, Mesh, Vector3, type Material } from 'three'
 import type { CatalogItem } from '../api/client'
 
 export interface ModelFit {
@@ -13,12 +13,23 @@ export interface ModelFit {
  * Prepara un GLB para el piso: aplica yaw_offset, centra en x/z, apoya min y en 0 y escala
  * uniforme para que el ANCHO sea el de la ficha (PLAN 2.7). Avisa si el alto difiere > 15 %.
  */
-export function fitModel(source: Group, item: CatalogItem, scaleK: number): ModelFit {
+export function fitModel(source: Group, item: CatalogItem, scaleK: number, ghost = false): ModelFit {
   const inner = source.clone(true)
   inner.traverse((o) => {
     if (o instanceof Mesh) {
-      o.castShadow = true
+      o.castShadow = !ghost
       o.receiveShadow = true
+      if (ghost) {
+        // material propio (clonado) para no volver transparentes los muebles reales
+        const mats = (Array.isArray(o.material) ? o.material : [o.material]).map((m: Material) => {
+          const c = m.clone()
+          c.transparent = true
+          c.opacity = 0.45
+          c.depthWrite = false
+          return c
+        })
+        o.material = Array.isArray(o.material) ? mats : mats[0]
+      }
     }
   })
   inner.rotation.y = (item.yaw_offset_deg * Math.PI) / 180
@@ -47,11 +58,12 @@ interface Props {
   item: CatalogItem
   scaleK: number
   onFit?: (fit: ModelFit) => void
+  ghost?: boolean
 }
 
-export default function FurnitureModel({ item, scaleK, onFit }: Props) {
+export default function FurnitureModel({ item, scaleK, onFit, ghost = false }: Props) {
   const { scene } = useGLTF(item.glb_url!)
-  const fit = useMemo(() => fitModel(scene, item, scaleK), [scene, item, scaleK])
+  const fit = useMemo(() => fitModel(scene, item, scaleK, ghost), [scene, item, scaleK, ghost])
   useEffect(() => onFit?.(fit), [fit, onFit])
   return <primitive object={fit.object} />
 }

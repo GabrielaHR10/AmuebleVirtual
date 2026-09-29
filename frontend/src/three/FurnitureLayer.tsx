@@ -114,8 +114,28 @@ function Placed({ p, item, selected, fit, scaleK, onDown }: PlacedProps) {
   )
 }
 
+/** Sugerencia pendiente: semitransparente, con su huella en azul y sin interacción. */
+function Ghost({ p, item, scaleK }: { p: Placement; item: CatalogItem; scaleK: number }) {
+  const w = (item.dimensions_cm.width / 100) * scaleK
+  const d = (item.dimensions_cm.depth / 100) * scaleK
+  const y = 0.004
+  const pts: [number, number, number][] = [
+    [-w / 2, y, -d / 2], [w / 2, y, -d / 2], [w / 2, y, d / 2], [-w / 2, y, d / 2], [-w / 2, y, -d / 2],
+  ]
+  return (
+    <group position={[p.x, 0, p.z]} rotation-y={(p.yaw_deg * Math.PI) / 180} userData={{ ghost: true }}>
+      {p.mode === '3d' && item.glb_url ? (
+        <FurnitureModel item={item} scaleK={scaleK} ghost />
+      ) : (
+        <CutoutBillboard item={item} scaleK={scaleK} ghost />
+      )}
+      <Line ref={markHelper} points={pts} color="#38bdf8" lineWidth={2} dashed dashSize={0.1} gapSize={0.06} depthTest={false} renderOrder={3} />
+    </group>
+  )
+}
+
 export default function FurnitureLayer() {
-  const { placements, catalog, selectedUid, scaleK, select, preview, commitFrom } = useStudio()
+  const { placements, catalog, selectedUid, scaleK, select, preview, commitFrom, ghosts } = useStudio()
   const fits = useFits()
   const drag = useRef<Drag | null>(null)
   const floorGroup = useRef<Object3D | null>(null)
@@ -180,9 +200,14 @@ export default function FurnitureLayer() {
         <planeGeometry args={[60, 60]} />
         <meshBasicMaterial transparent opacity={0} depthWrite={false} colorWrite={false} />
       </mesh>
+      {ghosts?.placements.map((g) => {
+        const item = byId.get(g.item_id)
+        return item ? <Ghost key={g.uid} p={g} item={item} scaleK={scaleK} /> : null
+      })}
       {placements.map((p) => {
         const item = byId.get(p.item_id)
-        if (!item) return null
+        // los muebles que se están reacomodando se ocultan mientras se ven los fantasmas
+        if (!item || ghosts?.replaceUids.includes(p.uid)) return null
         return (
           <Placed
             key={p.uid}
