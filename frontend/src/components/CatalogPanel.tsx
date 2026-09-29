@@ -50,6 +50,7 @@ export default function CatalogPanel() {
           className="w-full rounded border border-stone-300 px-2 py-1 text-sm"
         />
         <select
+          data-testid="category-filter"
           value={category}
           onChange={(e) => setCategory(e.target.value as Category | '')}
           className="w-full rounded border border-stone-300 px-2 py-1 text-sm"

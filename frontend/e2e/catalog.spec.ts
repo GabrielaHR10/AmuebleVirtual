@@ -7,7 +7,8 @@ test('el catálogo muestra los muebles con sus medidas', async ({ page }) => {
   await expect(cards.first()).toBeVisible()
   expect(await cards.count()).toBeGreaterThanOrEqual(3)
   await expect(page.getByText('198 × 100 × 91 cm')).toBeVisible() // sofá azul Edingburgh
-  await expect(page.getByText('Medidas sin verificar').first()).toBeVisible()
+  // todas las medidas están verificadas por Gabriela: no debe aparecer el aviso
+  await expect(page.getByText('Medidas sin verificar')).toHaveCount(0)
   await page.waitForLoadState('networkidle')
   await page.screenshot({ path: 'test-results/catalogo.png', fullPage: true })
 })
