@@ -4,11 +4,12 @@ from dataclasses import dataclass
 
 import numpy as np
 
-from app.geometry.occupancy import BLOCKED, FREE, NEAR, WALL_EDGE, Occupancy
+from app.geometry.occupancy import BLOCKED, FREE, NEAR, OUT_OF_VIEW, WALL_EDGE, Occupancy
 
 WALKABLE = (FREE, NEAR, WALL_EDGE)
 CLEARANCE_M = 0.10
 MAX_BAD_FRAC = 0.03
+MIN_IN_VIEW = 0.6
 MAX_BLOCKED_FRAC = 0.02
 
 
@@ -74,10 +75,22 @@ def in_image(uv: np.ndarray) -> np.ndarray:
 
 def is_valid(box: Box, grid: Occupancy, placed: list[Box], frame: np.ndarray, intrinsics: np.ndarray,
              ignore_overlap_with: set[int] | None = None) -> bool:
-    """Huella toda en celdas caminables, sin cruces (+10 cm) y esquinas + punto alto dentro de la foto."""
-    states = grid.state_at(*box.samples().T)
+    """¿Cabe aquí? Huella caminable, sin cruces (+10 cm) y al menos el 60 % dentro de la foto.
+
+    Se permite que parte del mueble quede fuera de cuadro (como en una foto real): exigir que se vea entero
+    empujaba todo al centro del cuarto en fotos verticales.
+    """
+    samples = box.samples()
+    states = grid.state_at(*samples.T)
+    center = grid.state_at(np.array([box.x]), np.array([box.z]))[0]
+    if center not in WALKABLE:
+        return False
+    out = states == OUT_OF_VIEW
+    if (~out).mean() < MIN_IN_VIEW:
+        return False
+    seen = states[~out]
     # tolerancia para datos reales: unos pocos centímetros en celdas desconocidas/bloqueadas
-    if (~np.isin(states, WALKABLE)).mean() > MAX_BAD_FRAC or (states == BLOCKED).mean() > MAX_BLOCKED_FRAC:
+    if (~np.isin(seen, WALKABLE)).mean() > MAX_BAD_FRAC or (states == BLOCKED).mean() > MAX_BLOCKED_FRAC:
         return False
     mine = box.corners()
     for i, other in enumerate(placed):
@@ -85,10 +98,7 @@ def is_valid(box: Box, grid: Occupancy, placed: list[Box], frame: np.ndarray, in
             continue
         if overlap(mine, other.corners(grow=CLEARANCE_M)):
             return False
-    c = box.corners()
-    pts3 = np.column_stack([c[:, 0], np.zeros(4), c[:, 1]])
-    top = np.array([[box.x, box.h, box.z]])
-    return bool(in_image(project(np.vstack([pts3, top]), frame, intrinsics)).all())
+    return True
 
 
 def visibility(box: Box, frame: np.ndarray, intrinsics: np.ndarray) -> float:

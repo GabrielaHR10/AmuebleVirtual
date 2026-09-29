@@ -99,6 +99,9 @@ export default function SuggestPanel() {
               </li>
             ))}
           </ul>
+          {ghosts.notes.some((n) => n.startsWith('No encontré')) && (
+            <p className="text-xs text-amber-800">Con "Aceptar todas", los muebles sin lugar se quitan de la foto.</p>
+          )}
           <div className="flex gap-2">
             <button onClick={() => acceptGhosts()} className="rounded bg-sky-700 px-2 py-1 text-white">
               Aceptar todas

@@ -196,9 +196,10 @@ export function acceptGhosts(uid?: string) {
   if (!ghosts) return
   const accepted = uid ? ghosts.placements.filter((g) => g.uid === uid) : ghosts.placements
   const acceptedItems = accepted.map((g) => g.item_id)
-  // al reacomodar, el fantasma reemplaza al mueble puesto del mismo tipo que se estaba moviendo
-  const toRemove = new Set<string>()
-  for (const itemId of acceptedItems) {
+  // al reacomodar, el fantasma reemplaza al mueble puesto del mismo tipo que se estaba moviendo;
+  // con "Aceptar todas", los muebles que no encontraron lugar salen de la escena (no quedan en el paso)
+  const toRemove = new Set<string>(uid ? [] : ghosts.replaceUids)
+  for (const itemId of uid ? acceptedItems : []) {
     const old = placements.find((p) => ghosts.replaceUids.includes(p.uid) && p.item_id === itemId && !toRemove.has(p.uid))
     if (old) toRemove.add(old.uid)
   }

@@ -13,8 +13,8 @@ NEAR_OBSTACLE_M = 0.20
 WALL_MIN_H = 1.2
 MARGIN_M = 0.5
 
-UNKNOWN, FREE, NEAR, WALL_EDGE, BLOCKED = 0, 1, 2, 3, 4
-COLORS = {UNKNOWN: (60, 60, 60), FREE: (90, 200, 90), NEAR: (220, 200, 60), WALL_EDGE: (60, 130, 240),
+UNKNOWN, FREE, NEAR, WALL_EDGE, BLOCKED, OUT_OF_VIEW = 0, 1, 2, 3, 4, 5
+COLORS = {UNKNOWN: (60, 60, 60), OUT_OF_VIEW: (35, 40, 60), FREE: (90, 200, 90), NEAR: (220, 200, 60), WALL_EDGE: (60, 130, 240),
           BLOCKED: (200, 60, 60)}
 
 
@@ -88,12 +88,12 @@ def build_occupancy(points: np.ndarray, valid: np.ndarray, floor_mask: np.ndarra
     state[has_floor] = FREE
     state[has_obj] = BLOCKED
 
-    # Celdas cuyo centro no se ve en la foto: desconocidas (borde del encuadre, no pared)
+    # Celdas cuyo centro no se ve en la foto: "fuera de cuadro" (borde del encuadre, no pared)
     cz, cx = np.mgrid[0:nz, 0:nx]
     px, pz = grid.center(cz.ravel(), cx.ravel())
     uv = project_floor_points(np.column_stack([px, pz]), frame, intrinsics)
     out_img = ~((uv >= 0) & (uv <= 1)).all(1)
-    state.ravel()[out_img & (state.ravel() != BLOCKED)] = UNKNOWN
+    state.ravel()[out_img & (state.ravel() != BLOCKED)] = OUT_OF_VIEW
 
     blocked = (state == BLOCKED).astype(np.uint8)
     dist = cv2.distanceTransform(1 - blocked, cv2.DIST_L2, 3) * CELL_M

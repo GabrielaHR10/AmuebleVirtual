@@ -84,6 +84,16 @@ describe('sugerencias (fantasmas)', () => {
     useStudio.getState().undo()
     expect(useStudio.getState().placements[0].uid).toBe(old.uid)
   })
+  it('aceptar todas quita los muebles que no encontraron lugar', () => {
+    addPlacement(sofa, 0, -3)
+    addPlacement(sofa, 1, -3)
+    const [a, b] = useStudio.getState().placements
+    const ghost = { ...a, uid: 'g1', x: 2, source: 'heuristic' as const }
+    useStudio.getState().setGhosts({ placements: [ghost], notes: [], replaceUids: [a.uid, b.uid] })
+    acceptGhosts()
+    expect(useStudio.getState().placements.map((p) => p.uid)).toEqual(['g1'])
+  })
+
   it('aceptar una deja las demás pendientes', () => {
     const g = (uid: string) => ({ uid, item_id: 'sofa', mode: 'cutout' as const, x: 0, z: -3, yaw_deg: 0, source: 'heuristic' as const })
     useStudio.getState().setGhosts({ placements: [g('a'), g('b')], notes: [], replaceUids: [] })

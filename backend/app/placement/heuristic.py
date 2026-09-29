@@ -13,6 +13,7 @@ from app.placement.geometry2d import (
     facing_camera,
     is_valid,
     local_wall_normals,
+    overlap,
     project,
     visibility,
 )
@@ -25,6 +26,11 @@ COFFEE_GAP_M = 0.45
 ARMCHAIR_GAP_M = 0.35
 PHASE = {"coffee_table": 1, "tv_stand": 1, "armchair": 2, "chair": 2, "nightstand": 2, "lamp": 3, "plant": 3}
 OCCLUSION_PENALTY = 0.25
+# Camino libre (90 cm) desde donde está la persona que tomó la foto hasta el frente del sofá.
+# Solo la mesa de centro, el tapete y el comedor pueden ir en él.
+CORRIDOR_HALF_W = 0.45
+CORRIDOR_STOP_M = 0.9
+PATH_OK = {"coffee_table", "rug", "dining_table"}
 TOP_K = 8
 
 
@@ -157,9 +163,55 @@ class Planner:
             if kind != "sofa":
                 continue
             for side in (1, -1):
-                c = np.array([host.x, host.z]) + host.right() * side * (host.w / 2 + it.w / 2 + 0.1)
-                out.append((Box(float(c[0]), float(c[1]), host.yaw, it.w, it.d, it.h), f"{it.name}: al lado del sofá"))
+                for fwd in (0.0, 0.1, 0.2, 0.3):  # la pared real no es perfectamente recta
+                    # pegado al brazo y con la espalda alineada al respaldo del sofá (junto a la misma pared)
+                    c = (np.array([host.x, host.z]) + host.right() * side * (host.w / 2 + it.w / 2 + 0.12)
+                         + host.front() * (it.d / 2 - host.d / 2 + fwd))
+                    out.append((Box(float(c[0]), float(c[1]), host.yaw, it.w, it.d, it.h),
+                                f"{it.name}: al lado del sofá"))
         return out
+
+    def corner_candidates(self, it: Item) -> list[tuple[Box, str]]:
+        """Esquinas: se desliza a lo largo de la pared para no meterse en la pared de al lado."""
+        out = []
+        for box, note in self.wall_candidates(it):
+            if not self._is_corner(box):
+                continue
+            for slide in (0.0, 0.1, -0.1, 0.2, -0.2, 0.3, -0.3, 0.4, -0.4):
+                c = np.array([box.x, box.z]) + box.right() * slide
+                out.append((Box(float(c[0]), float(c[1]), box.yaw, it.w, it.d, it.h),
+                            note.replace("contra", "en la esquina de")))
+        return out
+
+    # ---------- corredor de paso ----------
+
+    def corridor(self) -> np.ndarray | None:
+        """Rectángulo (4, 2) del camino desde la cámara (entrada) hasta la zona de estar."""
+        target = None
+        for host, kind in zip(self.placed, self.kinds, strict=True):
+            if kind == "sofa":
+                target = np.array([host.x, host.z]) + host.front() * (host.d / 2 + CORRIDOR_STOP_M)
+                break
+        if target is None:
+            free = self.free_region_candidates(Item("_", "_", "rug", 0.1, 0.1, 0.0, False))
+            if not free:
+                return None
+            target = np.array([free[0][0].x, free[0][0].z])
+        start = np.array([0.0, -0.2])
+        v = target - start
+        length = float(np.linalg.norm(v))
+        if length < 0.5:
+            return None
+        u = v / length
+        n = np.array([-u[1], u[0]]) * CORRIDOR_HALF_W
+        return np.array([start - n, start + n, target + n, target - n])
+
+    @staticmethod
+    def blocks_path(it: Item, box: Box, note: str, path: np.ndarray | None) -> bool:
+        """Solo los muebles sueltos cuentan: lo que va contra una pared, en una esquina o pegado al sofá no."""
+        if it.category in PATH_OK or path is None or any(k in note for k in ("contra", "esquina", "lado del sofá")):
+            return False
+        return overlap(box.corners(), path)
 
     # ---------- puntaje ----------
 
@@ -227,9 +279,8 @@ class Planner:
         if cat == "armchair":
             return self.beside_coffee_table(it) + self.beside_sofa(it) + self.wall_candidates(it)
         if cat in DECOR:
-            corners = [(b, n.replace("contra", "en la esquina de")) for b, n in self.wall_candidates(it)
-                       if self._is_corner(b)]
-            return corners + self.beside_sofa(it) + self.wall_candidates(it)
+            # plantas y lámparas: solo en esquinas o pegadas al sofá (nunca sueltas en el cuarto)
+            return self.corner_candidates(it) + self.beside_sofa(it)
         if it.against_wall:
             return self.wall_candidates(it)
         return self.free_region_candidates(it) + self.wall_candidates(it)
@@ -245,8 +296,10 @@ class Planner:
         rug_ids = {i for i, k in enumerate(self.kinds) if k == "rug"}
         ignore = rug_ids if it.category != "rug" else set(range(len(self.placed)))
         scored = []
+        path = self.corridor()
         for box, note in self.candidates_for(it):
-            if is_valid(box, self.grid, self.placed, self.frame, self.intr, ignore_overlap_with=ignore):
+            if (is_valid(box, self.grid, self.placed, self.frame, self.intr, ignore_overlap_with=ignore)
+                    and not self.blocks_path(it, box, note, path)):
                 scored.append(Candidate(box, self.score(it, box, note), note))
         scored.sort(key=lambda c: -c.score)
         # quitar candidatos casi iguales para que el top-k sea variado
