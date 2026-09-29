@@ -1,6 +1,8 @@
 @echo off
 chcp 65001 >nul
 setlocal
+rem Python en UTF-8 para que la consola no falle con tildes o simbolos
+set "PYTHONUTF8=1"
 rem Abre el Estudio Virtual en http://localhost:8000
 cd /d "%~dp0..\.."
 

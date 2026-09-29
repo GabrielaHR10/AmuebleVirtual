@@ -9,7 +9,7 @@ from app.config import MOGE_MODEL
 def prefetch_moge() -> None:
     from moge.model.v2 import MoGeModel
 
-    print(f"→ Modelo de geometría ({MOGE_MODEL}, ~400 MB la primera vez)…", flush=True)
+    print(f"- Modelo de geometría ({MOGE_MODEL}, ~400 MB la primera vez)…", flush=True)
     t = time.perf_counter()
     MoGeModel.from_pretrained(MOGE_MODEL)  # descarga a la caché de Hugging Face si falta
     print(f"  listo en {time.perf_counter() - t:.0f} s", flush=True)
