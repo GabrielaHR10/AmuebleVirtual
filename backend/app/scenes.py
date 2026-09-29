@@ -19,6 +19,7 @@ from app.geometry.coords import cv_to_three, floor_frame, fov_y_deg, to_column_m
 from app.geometry.floor import FloorResult, detect_floor, draw_floor_debug
 from app.geometry.moge_runner import UnsupportedImageError, load_image, run_moge
 from app.geometry.occlusion import build_occlusion_mesh, export_glb
+from app.geometry.occupancy import build_occupancy, occupancy_png
 from app.geometry.room import draw_grid, estimate_room, room_text
 from app.schemas import CameraInfo, FloorInfo, ImageInfo, Placement, RoomEstimate, Scene
 from app.storage import SCENES_DIR, file_url, new_scene_id, read_json, scene_dir, write_json_atomic
@@ -87,6 +88,13 @@ def analyze_photo(src: Path, scene_id: str | None = None) -> Scene:
     frame = floor_frame(floor.normal, floor.d) if floor.found else None
     room = estimate_room(points, r.mask, normals, floor, frame)
     t3 = time.perf_counter()
+    # Geometría para recalcular la grilla de ocupación después (sugerencias, piso manual)
+    np.savez_compressed(out / "geometry.npz", points=points.astype(np.float16), valid=r.mask,
+                        floor_mask=floor.mask if floor.mask is not None else np.zeros(r.mask.shape, bool),
+                        intrinsics=r.intrinsics)
+    if frame is not None:
+        grid = build_occupancy(points, r.mask, floor.mask, frame, r.intrinsics)
+        Image.fromarray(occupancy_png(grid)).save(out / "occupancy.png")
 
     fmask = floor.mask if floor.mask is not None else np.zeros(r.mask.shape, bool)
     Image.fromarray(fmask.astype(np.uint8) * 255).resize((w, h), Image.Resampling.NEAREST) \

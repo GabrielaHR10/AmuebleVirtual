@@ -36,7 +36,7 @@ Versión actual: 0.1.0 · Última actualización: 2026-09-28
 - [x] 🛑 Fin Fase 2 — nota: Gabriela (2026-09-29): tamaños correctos, pero posiciones poco naturales y falta realismo → prioridad en Fase 3 (ubicación) y Fase 4 (luz/sombras). Se quitaron sillón mid-century y mesa de pedestal. Release NO se envía todavía. Sofás verificados.
 
 ## Fase 3
-- [ ] 3.1 Grilla de ocupación — nota:
+- [x] 3.1 Grilla de ocupación — nota: `geometry/occupancy.py` (celdas 10 cm: libre / cerca de obstáculo (< 20 cm) / borde de pared (obstáculo > 1.2 m, con dirección a la pared) / bloqueado (0.05–1.8 m) / desconocido; celdas fuera de la foto = desconocidas). `occupancy.png` y `geometry.npz` (puntos f16) por escena para recalcular. Revisado en cuarto sintético y 3 fotos reales (sala, alcoba, cocina en L): coincide.
 - [ ] 3.2 Heurística — nota:
 - [ ] 3.3 VLM local opcional — nota:
 - [ ] 3.4 UI — nota:
