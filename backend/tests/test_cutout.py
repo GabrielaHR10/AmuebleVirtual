@@ -18,7 +18,7 @@ def test_crop_to_alpha_with_margin():
     arr = np.zeros((100, 200, 4), np.uint8)
     arr[40:60, 50:150, 3] = 255
     cut = crop_to_alpha(Image.fromarray(arr, "RGBA"))
-    assert cut.size == (104, 22)  # 100×20 + 2 % de margen por lado
+    assert cut.size == (104, 20)  # 100×20 + 2 % de margen por lado (en 20 px redondea a 0)
 
 
 def test_crop_to_alpha_empty_raises():
