@@ -24,6 +24,7 @@ Cada modelo o asset que use el proyecto se registra aquí.
 | Poly Haven `wooden_display_shelves_01` | modelo 3D | https://polyhaven.com/a/wooden_display_shelves_01 | CC0 | Catálogo semilla |
 | Poly Haven `side_table_01` | modelo 3D | https://polyhaven.com/a/side_table_01 | CC0 | Catálogo semilla |
 | Poly Haven `potted_plant_02` | modelo 3D | https://polyhaven.com/a/potted_plant_02 | CC0 | Catálogo semilla |
+| Poly Haven HDRI `lebombo` (1k) | iluminación | https://polyhaven.com/a/lebombo | CC0 | `frontend/public/hdri/room_1k.hdr` |
 | glTF-Transform CLI | herramienta (solo al crear el catálogo) | https://gltf-transform.dev | MIT | Convertir/optimizar GLB |
 | onnxruntime | librería | https://github.com/microsoft/onnxruntime | MIT | Ejecuta los modelos de recorte |
 
