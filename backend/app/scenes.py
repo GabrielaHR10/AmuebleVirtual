@@ -223,6 +223,14 @@ class SuggestResponse(BaseModel):
     notes: list[str]
 
 
+@router.get("/vlm/status")
+def vlm_status() -> dict:
+    """¿Está disponible la IA local (Ollama) para las sugerencias?"""
+    from app.placement.vlm import status
+
+    return status()
+
+
 @router.post("/{scene_id}/suggest", response_model=SuggestResponse)
 def post_suggest(scene_id: str, body: SuggestBody) -> SuggestResponse:
     """Sugerir dónde ubicar los muebles (PLAN 3.2/3.3). No guarda nada: el editor muestra "fantasmas"."""
