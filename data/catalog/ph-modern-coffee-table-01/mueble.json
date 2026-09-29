@@ -3,8 +3,8 @@
   "name": "Mesa de centro moderna",
   "category": "coffee_table",
   "dimensions_cm": {
-    "width": 60.0,
-    "depth": 120.2,
+    "width": 120.2,
+    "depth": 60.0,
     "height": 39.0
   },
   "extra_dimensions_cm": {},
@@ -15,8 +15,8 @@
   "glb_url": "/files/catalog/ph-modern-coffee-table-01/model.glb",
   "cutout_url": null,
   "photo_url": null,
-  "thumb_url": null,
-  "yaw_offset_deg": 0.0,
+  "thumb_url": "/files/catalog/ph-modern-coffee-table-01/thumb.png",
+  "yaw_offset_deg": -90.0,
   "against_wall": false,
   "source": "Poly Haven: https://polyhaven.com/a/modern_coffee_table_01",
   "license": "CC0",

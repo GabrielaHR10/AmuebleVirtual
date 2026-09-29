@@ -1,6 +1,6 @@
 {
   "id": "ph-round-wooden-table-01",
-  "name": "Mesa de comedor redonda de madera",
+  "name": "Mesa redonda de pedestal",
   "category": "dining_table",
   "dimensions_cm": {
     "width": 139.9,
@@ -15,7 +15,7 @@
   "glb_url": "/files/catalog/ph-round-wooden-table-01/model.glb",
   "cutout_url": null,
   "photo_url": null,
-  "thumb_url": null,
+  "thumb_url": "/files/catalog/ph-round-wooden-table-01/thumb.png",
   "yaw_offset_deg": 0.0,
   "against_wall": false,
   "source": "Poly Haven: https://polyhaven.com/a/round_wooden_table_01",

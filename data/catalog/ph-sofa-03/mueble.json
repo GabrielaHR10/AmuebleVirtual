@@ -1,6 +1,6 @@
 {
   "id": "ph-sofa-03",
-  "name": "Sofá moderno",
+  "name": "Sofá clásico tapizado",
   "category": "sofa",
   "dimensions_cm": {
     "width": 273.1,
@@ -15,7 +15,7 @@
   "glb_url": "/files/catalog/ph-sofa-03/model.glb",
   "cutout_url": null,
   "photo_url": null,
-  "thumb_url": null,
+  "thumb_url": "/files/catalog/ph-sofa-03/thumb.png",
   "yaw_offset_deg": 0.0,
   "against_wall": true,
   "source": "Poly Haven: https://polyhaven.com/a/sofa_03",

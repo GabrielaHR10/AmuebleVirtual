@@ -1,6 +1,6 @@
 {
   "id": "ph-sofa-02",
-  "name": "Sofá tres puestos gris",
+  "name": "Sofá Chesterfield de cuero negro",
   "category": "sofa",
   "dimensions_cm": {
     "width": 180.7,
@@ -15,7 +15,7 @@
   "glb_url": "/files/catalog/ph-sofa-02/model.glb",
   "cutout_url": null,
   "photo_url": null,
-  "thumb_url": null,
+  "thumb_url": "/files/catalog/ph-sofa-02/thumb.png",
   "yaw_offset_deg": 0.0,
   "against_wall": true,
   "source": "Poly Haven: https://polyhaven.com/a/sofa_02",

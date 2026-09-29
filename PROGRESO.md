@@ -24,7 +24,7 @@ Versión actual: 0.0.0 · Última actualización: 2026-09-28
 - [x] 2.1 Catálogo: servicio y endpoints — nota: `catalog/service.py` (carpeta por mueble + catalog.json regenerado con escritura atómica y lock), `app.catalog.build`, GET/POST/DELETE /api/catalog (DELETE solo `user_created`). 5 tests.
 - [x] 2.2a Importar los muebles de Gabriela — nota: `scripts/import_furniture.py` (idempotente) + `catalog/cutout.py` (rembg birefnet-general-lite, deja solo el objeto principal). Sofás: recortes limpios (se quitan lámpara, planta, libros). Mesa Gretel: el recorte incluye las 4 sillas (no separables) → nota pidiendo foto de la mesa sola. Click-clack: aviso de proporción (foto en 3/4). rembg agregado a `app.prefetch`.
 - [x] 2.2b Catálogo complementario Poly Haven — nota: `scripts/seed_catalog.py`, 12 modelos CC0 (sin lámpara de piso ni cama moderna en Poly Haven), GLB 0.2–2.2 MB (webp, sin meshopt porque trimesh no lo lee). Medidas desde el bbox. Orientación de mesa de centro moderna y estantería por revisar en 2.3.
-- [ ] 2.3 Miniaturas — nota:
+- [x] 2.3 Miniaturas — nota: página interna `/thumb` + `e2e/thumbs.spec.ts` + `scripts/make_thumbs.py` (256×256 transparente). Con vistas frente/lado se corrigió el yaw de la estantería y la mesa de centro moderna (−90°, ancho/fondo intercambiados). Nombres corregidos (sofa_02 es Chesterfield negro, sofa_03 clásico). Dudosas de escala: mesa de pedestal 140×100 cm de alto y sillón mid-century 101×119×117 → preguntar en 🛑 Fase 2.
 - [ ] 2.4 HDRI de iluminación — nota:
 - [ ] 2.5 Muebles propios desde foto (recorte 2D) — nota:
 - [ ] 2.6 Editor 3D: estructura de capas — nota:
