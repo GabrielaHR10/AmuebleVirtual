@@ -24,7 +24,7 @@ test('agregar muebles, arrastrar y girar', async ({ page }) => {
   await page.mouse.down()
   await page.mouse.move(cx - 60, cy - 40, { steps: 8 })
   await page.mouse.up()
-  await expect(page.getByTestId('save-status')).toHaveText('Cambios guardados', { timeout: 5000 })
+  await expect(page.getByTestId('save-status')).toHaveText('Cambios guardados', { timeout: 15_000 })
 
   await page.getByRole('button', { name: /Mesa de centro moderna/ }).click()
   await page.keyboard.press('q')

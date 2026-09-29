@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { describeHealth, getHealth } from './api/client'
 import CatalogAdmin from './pages/CatalogAdmin'
 import PhotoStudio from './pages/PhotoStudio'
+import VideoStudio from './pages/VideoStudio'
 
 type Status = { state: 'loading' } | { state: 'ok'; text: string } | { state: 'error'; text: string }
 
@@ -32,11 +33,11 @@ function HealthBadge() {
   )
 }
 
-type Page = 'studio' | 'catalog'
-const PATHS: Record<Page, string> = { studio: '/', catalog: '/catalogo' }
+type Page = 'studio' | 'video' | 'catalog'
+const PATHS: Record<Page, string> = { studio: '/', video: '/video', catalog: '/catalogo' }
 
 function pageFromPath(path: string): Page {
-  return path.startsWith('/catalogo') ? 'catalog' : 'studio'
+  return path.startsWith('/catalogo') ? 'catalog' : path.startsWith('/video') ? 'video' : 'studio'
 }
 
 export default function App() {
@@ -69,13 +70,14 @@ export default function App() {
           <h1 className="text-xl font-semibold">Estudio Virtual — Santiago Muebles</h1>
           <nav className="flex gap-1">
             {tab('studio', 'Estudio')}
+            {tab('video', 'Video')}
             {tab('catalog', 'Catálogo')}
           </nav>
         </div>
         <HealthBadge />
       </header>
-      <main className={`min-h-0 flex-1 ${page === 'catalog' ? 'overflow-auto' : 'overflow-hidden'}`}>
-        {page === 'catalog' ? <CatalogAdmin /> : <PhotoStudio />}
+      <main className={`min-h-0 flex-1 ${page === 'studio' ? 'overflow-hidden' : 'overflow-auto'}`}>
+        {page === 'catalog' ? <CatalogAdmin /> : page === 'video' ? <VideoStudio onOpenScene={() => go('studio')} /> : <PhotoStudio />}
       </main>
     </div>
   )

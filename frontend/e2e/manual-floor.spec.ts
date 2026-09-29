@@ -13,6 +13,7 @@ test('definir el piso a mano con 3 clics', async ({ page }) => {
   await expect(editor).toBeVisible({ timeout: 90_000 })
   const panel = page.getByTestId('manual-floor')
   await expect(panel).toContainText('No se encontró el piso')
+  await page.waitForLoadState('networkidle') // la malla de la foto debe estar cargada para marcar puntos
   await panel.getByRole('button', { name: 'Definir piso' }).click()
   const box = (await editor.boundingBox())!
   for (const [fx, fy] of [[0.1, 0.97], [0.45, 0.99], [0.3, 0.9]]) {

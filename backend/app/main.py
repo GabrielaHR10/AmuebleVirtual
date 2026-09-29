@@ -4,7 +4,7 @@ from fastapi import APIRouter, FastAPI, HTTPException
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
-from app import __version__, scenes
+from app import __version__, jobs, scenes, videos
 from app.catalog import routes as catalog_routes
 from app.config import DATA_DIR, STATIC_DIR, resolve_device
 
@@ -20,6 +20,8 @@ def health() -> dict:
 
 api.include_router(scenes.router)
 api.include_router(catalog_routes.router)
+api.include_router(videos.router)
+api.include_router(jobs.router)
 app.include_router(api)
 
 DATA_DIR.mkdir(parents=True, exist_ok=True)

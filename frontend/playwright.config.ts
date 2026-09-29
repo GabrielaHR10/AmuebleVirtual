@@ -6,6 +6,8 @@ const port = Number(process.env.E2E_PORT ?? 8000)
 
 export default defineConfig({
   testDir: './e2e',
+  // un solo servidor con un solo modelo de IA: las pruebas en paralelo se estorban (análisis de ~1 min en video)
+  workers: 1,
   outputDir: './test-results/artifacts',
   timeout: 60_000,
   use: {

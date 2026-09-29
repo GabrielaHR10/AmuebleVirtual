@@ -51,8 +51,8 @@ Versión actual: 0.1.0 · Última actualización: 2026-09-28
 - [x] 🛑 Fin Fase 4 — nota: pares antes/después en `entregas/fase4/`. Gabriela eligió A: sin IA externa, mejorar el retoque clásico (hecho) y seguir a la Fase 5.
 
 ## Fase 5
-- [ ] 5.1 Video a fotogramas clave — nota:
-- [ ] 🛑 Tras 5.1
+- [x] 5.1 Video a fotogramas clave — nota: `jobs.py` (hilo + JSON, GET /api/jobs/{id}), `video/keyframes.py` con **OpenCV** (su FFmpeg es LGPL; imageio-ffmpeg podía traer binario GPL), `videos.py` (POST /api/videos, GET /api/videos/{id}, POST /api/videos/{id}/keyframes). Por ventana se toman los 3 más nítidos y se elige el que muestra más piso (MoGe): elegir solo por nitidez daba primeros planos de puertas/closets. Límite 3 min (el plan decía 60 s, pensado para 5.2). Video de Gabriela (150 s): 6 fotogramas en ~70 s, 5 con piso; resumen techo ≈ 2.23 m. Página **Video** con progreso, tira de fotogramas y "Amoblar este fotograma". e2e `video.spec.ts`.
+- [ ] 🛑 Tras 5.1 — nota: preguntado a Gabriela: ¿basta con fotogramas o seguimos con video en movimiento (5.2–5.3)?
 - [ ] 5.2 Seguimiento de cámara (SfM) — nota:
 - [ ] 5.3 Render del video — nota:
 - [ ] 🛑 Tras 5.3

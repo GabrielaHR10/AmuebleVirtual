@@ -195,3 +195,66 @@ export async function extractDimensions(table: File): Promise<ExtractedDimension
   form.append('table_image', table)
   return parse<ExtractedDimensions>(await fetch('/api/catalog/extract-dimensions', { method: 'POST', body: form }))
 }
+
+// ---------- Video (PLAN 5.1) ----------
+
+export interface Job {
+  id: string
+  kind: string
+  status: 'queued' | 'running' | 'done' | 'error'
+  progress: number
+  message: string
+  result: unknown
+}
+
+export interface VideoKeyframe {
+  k: number
+  frame: number
+  time_s: number
+  sharpness: number
+  floor_ratio: number
+  url: string
+  scene_id: string | null
+}
+
+export interface VideoMeta {
+  video_id: string
+  duration_s: number
+  keyframes: VideoKeyframe[]
+  summary: { ceiling_height_m: number | null; max_width_m: number | null; max_depth_m: number | null } | null
+}
+
+export async function uploadVideo(file: File): Promise<{ video_id: string; job_id: string }> {
+  const form = new FormData()
+  form.append('file', file)
+  return parse(await fetch('/api/videos', { method: 'POST', body: form }))
+}
+
+export async function getVideo(id: string): Promise<VideoMeta> {
+  return parse<VideoMeta>(await fetch(`/api/videos/${encodeURIComponent(id)}`))
+}
+
+export async function createKeyframeScenes(id: string, ks: number[] | null): Promise<{ job_id: string }> {
+  return parse(
+    await fetch(`/api/videos/${encodeURIComponent(id)}/keyframes`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ks }),
+    }),
+  )
+}
+
+export async function getJob(id: string): Promise<Job> {
+  return parse<Job>(await fetch(`/api/jobs/${encodeURIComponent(id)}`))
+}
+
+/** Espera a que termine un trabajo, avisando el progreso. */
+export async function waitJob(id: string, onProgress: (j: Job) => void): Promise<Job> {
+  for (;;) {
+    const j = await getJob(id)
+    onProgress(j)
+    if (j.status === 'done') return j
+    if (j.status === 'error') throw new Error(j.message)
+    await new Promise((r) => setTimeout(r, 1000))
+  }
+}

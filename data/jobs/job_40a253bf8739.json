@@ -1,0 +1,75 @@
+{
+  "id": "job_40a253bf8739",
+  "kind": "scenes",
+  "status": "done",
+  "progress": 1.0,
+  "message": "Listo",
+  "result": {
+    "video_id": "vid_20260929_100111_4111",
+    "duration_s": 150.0,
+    "width": 576,
+    "height": 1024,
+    "fps": 29.99,
+    "keyframes": [
+      {
+        "k": 0,
+        "frame": 678,
+        "time_s": 22.61,
+        "sharpness": 185.1,
+        "floor_ratio": 0.166,
+        "url": "/files/videos/vid_20260929_100111_4111/kf_00.jpg",
+        "scene_id": "scn_20260929_100212_b2bc"
+      },
+      {
+        "k": 1,
+        "frame": 876,
+        "time_s": 29.21,
+        "sharpness": 115.1,
+        "floor_ratio": 0.197,
+        "url": "/files/videos/vid_20260929_100111_4111/kf_01.jpg",
+        "scene_id": "scn_20260929_100215_9a29"
+      },
+      {
+        "k": 2,
+        "frame": 1914,
+        "time_s": 63.82,
+        "sharpness": 147.6,
+        "floor_ratio": 0.261,
+        "url": "/files/videos/vid_20260929_100111_4111/kf_02.jpg",
+        "scene_id": "scn_20260929_100219_b6fe"
+      },
+      {
+        "k": 3,
+        "frame": 2586,
+        "time_s": 86.22,
+        "sharpness": 85.2,
+        "floor_ratio": 0.0,
+        "url": "/files/videos/vid_20260929_100111_4111/kf_03.jpg",
+        "scene_id": null
+      },
+      {
+        "k": 4,
+        "frame": 3066,
+        "time_s": 102.23,
+        "sharpness": 82.4,
+        "floor_ratio": 0.274,
+        "url": "/files/videos/vid_20260929_100111_4111/kf_04.jpg",
+        "scene_id": "scn_20260929_100222_fe13"
+      },
+      {
+        "k": 5,
+        "frame": 4236,
+        "time_s": 141.24,
+        "sharpness": 188.6,
+        "floor_ratio": 0.204,
+        "url": "/files/videos/vid_20260929_100111_4111/kf_05.jpg",
+        "scene_id": "scn_20260929_100226_9f07"
+      }
+    ],
+    "summary": {
+      "ceiling_height_m": 2.23,
+      "max_width_m": 1.6,
+      "max_depth_m": 3.5
+    }
+  }
+}
