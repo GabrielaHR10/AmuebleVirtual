@@ -49,6 +49,9 @@ class FurnitureSpec(BaseModel):
     notes: list[str] = Field(default_factory=list)
     # Solo los muebles creados desde la UI se pueden borrar con DELETE /api/catalog/{id}
     user_created: bool = False
+    # Recorte 2D: ancho/alto del PNG y aviso si no coincide con la tabla (> 15 %, PLAN 2.5)
+    cutout_ratio: float | None = None
+    photo_warning: str | None = None
 
     @model_validator(mode="after")
     def _extras_positive(self) -> "FurnitureSpec":

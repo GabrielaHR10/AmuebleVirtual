@@ -32,5 +32,7 @@
     "Es extensible: la tabla no da la medida abierta. La descripción dice 'Negro' pero en la foto la cubierta se ve de madera (patas oscuras).",
     "Recorte: ancho/alto 1.06 vs. tabla 1.07 (OK)"
   ],
-  "user_created": false
+  "user_created": false,
+  "cutout_ratio": 1.0593,
+  "photo_warning": null
 }

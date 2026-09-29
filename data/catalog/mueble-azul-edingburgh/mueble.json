@@ -38,5 +38,7 @@
     "Foto en 3/4 sobre fondo blanco: buena para el recorte, aunque no es totalmente frontal.",
     "Recorte: ancho/alto 2.02 vs. tabla 2.18 (OK)"
   ],
-  "user_created": false
+  "user_created": false,
+  "cutout_ratio": 2.0237,
+  "photo_warning": null
 }

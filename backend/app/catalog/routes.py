@@ -39,6 +39,7 @@ def create_item(
     width_cm: Annotated[float, Form()],
     depth_cm: Annotated[float, Form()],
     height_cm: Annotated[float, Form()],
+    table_image: Annotated[UploadFile | None, File()] = None,
 ) -> CatalogItem:
     try:
         dims = Dimensions(width=width_cm, depth=depth_cm, height=height_cm)
@@ -46,13 +47,18 @@ def create_item(
         raise HTTPException(422, "Medidas inválidas: deben ser mayores que 0, ancho < 500 cm y alto < 300 cm.") \
             from None
     img = _read_photo(photo)
+    table = _read_photo(table_image) if table_image is not None and table_image.filename else None
     item = CatalogItem(
         id=service.unique_id(name), name=name.strip(), category=category, dimensions_cm=dims,
         dimensions_source="usuario", dimensions_verified=True,
         against_wall=category in AGAINST_WALL_CATEGORIES,
         source="Subido por el usuario", license="propio", user_created=True,
     )
-    return service.create_with_photo(item, img)
+    try:
+        return service.create_with_photo(item, img, table)
+    except ValueError as e:  # no se detectó ningún mueble en la foto
+        service.discard(item.id)
+        raise HTTPException(422, f"{e}. Toma la foto de frente, con fondo despejado y buena luz.") from None
 
 
 @router.delete("/{item_id}")

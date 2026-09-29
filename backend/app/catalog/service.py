@@ -83,17 +83,41 @@ def save_item(item: CatalogItem) -> CatalogItem:
         return item
 
 
-def create_with_photo(item: CatalogItem, photo: Image.Image) -> CatalogItem:
-    """Guarda la foto (foto.jpg, máx. 2048 px) y la ficha. El recorte se agrega en `cutout.py` (2.5)."""
-    with _lock:
-        folder = item_dir(item.id)
-        folder.mkdir(parents=True, exist_ok=True)
-        photo = photo.copy()
-        photo.thumbnail((2048, 2048))
-        photo.save(folder / "foto.jpg", quality=90)
-        item = item.model_copy(update={"photo_url": storage.file_url(folder / "foto.jpg"),
-                                       "main_photo": "foto.jpg"})
-        return save_item(item)
+def create_with_photo(item: CatalogItem, photo: Image.Image,
+                      table_image: Image.Image | None = None) -> CatalogItem:
+    """Guarda foto.jpg (máx. 2048 px), el recorte (cutout.png + thumb.png) y la ficha."""
+    folder = item_dir(item.id)
+    folder.mkdir(parents=True, exist_ok=True)
+    photo = photo.copy()
+    photo.thumbnail((2048, 2048))
+    photo.save(folder / "foto.jpg", quality=90)
+    if table_image is not None:
+        table_image.convert("RGB").save(folder / "medidas.jpg", quality=90)
+    item = item.model_copy(update={"photo_url": storage.file_url(folder / "foto.jpg"), "main_photo": "foto.jpg"})
+    return save_item(apply_cutout(item, photo))
+
+
+def apply_cutout(item: CatalogItem, photo: Image.Image) -> CatalogItem:
+    """Quita el fondo, guarda cutout.png/thumb.png y compara la proporción con la tabla."""
+    from app.catalog.cutout import make_cutout, proportion_check
+
+    folder = item_dir(item.id)
+    cut = make_cutout(photo)
+    cut.image.save(folder / "cutout.png")
+    cut.thumb.save(folder / "thumb.png")
+    dims = item.dimensions_cm
+    return item.model_copy(update={
+        "cutout_url": storage.file_url(folder / "cutout.png"),
+        "thumb_url": storage.file_url(folder / "thumb.png"),
+        "cutout_ratio": round(cut.ratio, 4),
+        "photo_warning": proportion_check(cut.ratio, dims.width, dims.height),
+        "preferred_mode": "cutout",
+    })
+
+
+def discard(item_id: str) -> None:
+    """Borra la carpeta de un mueble a medio crear (sin tocar catalog.json)."""
+    shutil.rmtree(item_dir(item_id), ignore_errors=True)
 
 
 def delete_item(item_id: str) -> None:

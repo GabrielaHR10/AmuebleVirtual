@@ -34,7 +34,9 @@
         "Es extensible: la tabla no da la medida abierta. La descripción dice 'Negro' pero en la foto la cubierta se ve de madera (patas oscuras).",
         "Recorte: ancho/alto 1.06 vs. tabla 1.07 (OK)"
       ],
-      "user_created": false
+      "user_created": false,
+      "cutout_ratio": 1.0593,
+      "photo_warning": null
     },
     {
       "id": "mueble-azul-edingburgh",
@@ -76,7 +78,9 @@
         "Foto en 3/4 sobre fondo blanco: buena para el recorte, aunque no es totalmente frontal.",
         "Recorte: ancho/alto 2.02 vs. tabla 2.18 (OK)"
       ],
-      "user_created": false
+      "user_created": false,
+      "cutout_ratio": 2.0237,
+      "photo_warning": null
     },
     {
       "id": "mueble-blanco-clickclack",
@@ -116,7 +120,9 @@
         "La foto está ambientada (lámpara, planta, cojines, libros): el recorte automático puede arrastrar cosas.",
         "Recorte: ancho/alto 2.10 vs. tabla 2.74 → La foto no está de frente o las medidas no coinciden"
       ],
-      "user_created": false
+      "user_created": false,
+      "cutout_ratio": 2.1023,
+      "photo_warning": "La foto no está de frente o las medidas no coinciden"
     },
     {
       "id": "ph-coffee-table-round-01",
@@ -143,7 +149,9 @@
       "raw_table": null,
       "main_photo": null,
       "notes": [],
-      "user_created": false
+      "user_created": false,
+      "cutout_ratio": null,
+      "photo_warning": null
     },
     {
       "id": "ph-dining-chair-02",
@@ -170,7 +178,9 @@
       "raw_table": null,
       "main_photo": null,
       "notes": [],
-      "user_created": false
+      "user_created": false,
+      "cutout_ratio": null,
+      "photo_warning": null
     },
     {
       "id": "ph-mid-century-lounge-chair",
@@ -197,7 +207,9 @@
       "raw_table": null,
       "main_photo": null,
       "notes": [],
-      "user_created": false
+      "user_created": false,
+      "cutout_ratio": null,
+      "photo_warning": null
     },
     {
       "id": "ph-modern-arm-chair-01",
@@ -224,7 +236,9 @@
       "raw_table": null,
       "main_photo": null,
       "notes": [],
-      "user_created": false
+      "user_created": false,
+      "cutout_ratio": null,
+      "photo_warning": null
     },
     {
       "id": "ph-modern-coffee-table-01",
@@ -251,7 +265,9 @@
       "raw_table": null,
       "main_photo": null,
       "notes": [],
-      "user_created": false
+      "user_created": false,
+      "cutout_ratio": null,
+      "photo_warning": null
     },
     {
       "id": "ph-modern-wooden-cabinet",
@@ -278,7 +294,9 @@
       "raw_table": null,
       "main_photo": null,
       "notes": [],
-      "user_created": false
+      "user_created": false,
+      "cutout_ratio": null,
+      "photo_warning": null
     },
     {
       "id": "ph-potted-plant-02",
@@ -305,7 +323,9 @@
       "raw_table": null,
       "main_photo": null,
       "notes": [],
-      "user_created": false
+      "user_created": false,
+      "cutout_ratio": null,
+      "photo_warning": null
     },
     {
       "id": "ph-round-wooden-table-01",
@@ -332,7 +352,9 @@
       "raw_table": null,
       "main_photo": null,
       "notes": [],
-      "user_created": false
+      "user_created": false,
+      "cutout_ratio": null,
+      "photo_warning": null
     },
     {
       "id": "ph-side-table-01",
@@ -359,7 +381,9 @@
       "raw_table": null,
       "main_photo": null,
       "notes": [],
-      "user_created": false
+      "user_created": false,
+      "cutout_ratio": null,
+      "photo_warning": null
     },
     {
       "id": "ph-sofa-02",
@@ -386,7 +410,9 @@
       "raw_table": null,
       "main_photo": null,
       "notes": [],
-      "user_created": false
+      "user_created": false,
+      "cutout_ratio": null,
+      "photo_warning": null
     },
     {
       "id": "ph-sofa-03",
@@ -413,7 +439,9 @@
       "raw_table": null,
       "main_photo": null,
       "notes": [],
-      "user_created": false
+      "user_created": false,
+      "cutout_ratio": null,
+      "photo_warning": null
     },
     {
       "id": "ph-wooden-display-shelves-01",
@@ -440,7 +468,9 @@
       "raw_table": null,
       "main_photo": null,
       "notes": [],
-      "user_created": false
+      "user_created": false,
+      "cutout_ratio": null,
+      "photo_warning": null
     }
   ]
 }

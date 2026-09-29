@@ -15,11 +15,9 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from app import storage
 from app.catalog import service
-from app.catalog.cutout import make_cutout, proportion_check
+from app.catalog.cutout import proportion_check
 from app.config import SAMPLES_DIR
 from app.schemas import FurnitureSpec
-
-PHOTO_ISSUE_NOTE = "La foto incluye otros objetos (sillas/decoración): conviene una foto del mueble solo."
 
 
 def import_folder(folder: Path, force: bool) -> FurnitureSpec:
@@ -31,29 +29,25 @@ def import_folder(folder: Path, force: bool) -> FurnitureSpec:
         photo = ImageOps.exif_transpose(im).convert("RGB")
     photo.save(dest / "foto.jpg", quality=92)
 
-    notes = list(spec.notes)
+    item = spec.model_copy(update={"photo_url": storage.file_url(dest / "foto.jpg"), "main_photo": "foto.jpg"})
     if force or not (dest / "cutout.png").is_file():
-        cut = make_cutout(photo)
-        cut.image.save(dest / "cutout.png")
-        cut.thumb.save(dest / "thumb.png")
-        ratio = cut.ratio
+        item = service.apply_cutout(item, photo)
     else:
         with Image.open(dest / "cutout.png") as c:
             ratio = c.width / c.height
-    dims = spec.dimensions_cm
-    warning = proportion_check(ratio, dims.width, dims.height)
-    notes = [n for n in notes if not n.startswith("Recorte:")]
-    notes.append(f"Recorte: ancho/alto {ratio:.2f} vs. tabla {dims.width / dims.height:.2f}"
-                 + (f" → {warning}" if warning else " (OK)"))
-
-    item = spec.model_copy(update={
-        "photo_url": storage.file_url(dest / "foto.jpg"),
-        "cutout_url": storage.file_url(dest / "cutout.png"),
-        "thumb_url": storage.file_url(dest / "thumb.png"),
-        "main_photo": "foto.jpg",
-        "preferred_mode": "cutout",
-        "notes": notes,
-    })
+        dims = item.dimensions_cm
+        item = item.model_copy(update={
+            "cutout_url": storage.file_url(dest / "cutout.png"),
+            "thumb_url": storage.file_url(dest / "thumb.png"),
+            "cutout_ratio": round(ratio, 4),
+            "photo_warning": proportion_check(ratio, dims.width, dims.height),
+            "preferred_mode": "cutout",
+        })
+    notes = [n for n in item.notes if not n.startswith("Recorte:")]
+    dims = item.dimensions_cm
+    notes.append(f"Recorte: ancho/alto {item.cutout_ratio:.2f} vs. tabla {dims.width / dims.height:.2f}"
+                 + (f" → {item.photo_warning}" if item.photo_warning else " (OK)"))
+    item = item.model_copy(update={"notes": notes})
     storage.write_json_atomic(dest / "mueble.json", item.model_dump())
     return item
 

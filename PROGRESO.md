@@ -26,7 +26,7 @@ Versión actual: 0.0.0 · Última actualización: 2026-09-28
 - [x] 2.2b Catálogo complementario Poly Haven — nota: `scripts/seed_catalog.py`, 12 modelos CC0 (sin lámpara de piso ni cama moderna en Poly Haven), GLB 0.2–2.2 MB (webp, sin meshopt porque trimesh no lo lee). Medidas desde el bbox. Orientación de mesa de centro moderna y estantería por revisar en 2.3.
 - [x] 2.3 Miniaturas — nota: página interna `/thumb` + `e2e/thumbs.spec.ts` + `scripts/make_thumbs.py` (256×256 transparente). Con vistas frente/lado se corrigió el yaw de la estantería y la mesa de centro moderna (−90°, ancho/fondo intercambiados). Nombres corregidos (sofa_02 es Chesterfield negro, sofa_03 clásico). Dudosas de escala: mesa de pedestal 140×100 cm de alto y sillón mid-century 101×119×117 → preguntar en 🛑 Fase 2.
 - [x] 2.4 HDRI de iluminación — nota: `lebombo` 1k (sala con luz natural, bajo contraste, CC0) en `frontend/public/hdri/room_1k.hdr` (1.5 MB). Se usa en 2.6 con `<Environment files>`.
-- [ ] 2.5 Muebles propios desde foto (recorte 2D) — nota:
+- [x] 2.5 Muebles propios desde foto (recorte 2D) — nota: POST /api/catalog recorta con rembg (`service.apply_cutout`, mismo código que el import), guarda `cutout_ratio` y `photo_warning` (> 15 %); tabla de medidas opcional → medidas.jpg (para 3.6). Página **Catálogo** (/catalogo) con formulario y grilla con medidas y avisos; `billboardSize` en `catalog.ts` (vitest). e2e `catalog.spec.ts` + captura revisada.
 - [ ] 2.6 Editor 3D: estructura de capas — nota:
 - [ ] 2.7 Muebles en el editor — nota:
 - [ ] 2.8 Calibración de escala — nota:
