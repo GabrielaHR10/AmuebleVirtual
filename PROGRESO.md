@@ -33,7 +33,7 @@ Versión actual: 0.1.0 · Última actualización: 2026-09-28
 - [x] 2.9 Piso manual — nota: panel "Definir piso" si floor.found=false; 3 clics con raycast contra la malla de oclusión → `planeFromPoints` + `floorFrameFromPlane` (math.ts, testeado con los casos de coords.py) → PUT /api/scenes/{id}/floor (nuevo). Con piso manual: sin oclusión (la malla incluye el piso) y sin máscara en ¿cabe?. e2e con la foto de la ducha.
 - [x] 2.10 Exportar PNG — nota: `exportImage.ts`: foto + render 3D al tamaño natural (sin ayudas: cuadrícula/huellas/marcadores van en la capa 1, que se apaga al exportar) y máscara de muebles blanco/negro (shader con alfa para recortes, toneMapped=false). Botones "Exportar PNG" y "Máscara de muebles". e2e `photo-studio.spec.ts` (PNG > 50 KB, revisado a ojo: sofá contra la pared, mesa delante con sombra, oclusión correcta).
 - [x] 2.11 UI general (PhotoStudio) — nota: layout catálogo (búsqueda + categorías) / editor / panel (mueble, vista, escala, medidas); intensidad de sombra y exposición de muebles (0.5–1.5); avisos (toasts) en español para errores del servidor; al agregar un mueble se busca el lugar libre más cercano (primero dentro del piso visible, si no al menos sin cruces). e2e `studio-ui.spec.ts` + aviso de archivo inválido.
-- [ ] 🛑 Fin Fase 2 — nota: entregado a Gabriela: release v0.1.0 (9.1 MB, probado descomprimido: health/página/catálogo OK), 3 PNG en `entregas/fase2/`. Esperando respuestas (tamaños, diseño, catálogo semilla, enviar al hermano).
+- [x] 🛑 Fin Fase 2 — nota: Gabriela (2026-09-29): tamaños correctos, pero posiciones poco naturales y falta realismo → prioridad en Fase 3 (ubicación) y Fase 4 (luz/sombras). Se quitaron sillón mid-century y mesa de pedestal. Release NO se envía todavía. Sofás verificados.
 
 ## Fase 3
 - [ ] 3.1 Grilla de ocupación — nota:
@@ -72,9 +72,10 @@ Versión actual: 0.1.0 · Última actualización: 2026-09-28
 - 2026-09-28: la app arranca en el Mac de Gabriela con doble clic.
 - 2026-09-28: HEIC no se soporta (pillow-heif es GPLv2); solo JPG/PNG (opción A).
 - 2026-09-28: Gabriela pide avanzar sin preguntar lo técnico e instalar lo necesario (p. ej. Ollama).
+- 2026-09-29: medidas de los sofás confirmadas. Catálogo semilla sin sillón mid-century ni mesa de pedestal (escala irreal). Release v0.1.0 no se envía al hermano todavía.
+- 2026-09-29: "tamaño correcto, pero posiciones poco naturales y no se ve realista" → prioridad: ubicación natural (Fase 3) y realismo (Fase 4).
 
 ## Problemas abiertos
-- Medidas de los dos sofás (Edingburgh y click-clack) pendientes de confirmar por Gabriela.
 
 ## Mediciones
 | Foto | Dispositivo | Tiempo análisis | Altura cámara | % piso |

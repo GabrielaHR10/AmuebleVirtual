@@ -22,15 +22,14 @@ from app.schemas import AGAINST_WALL_CATEGORIES, CatalogItem
 API = "https://api.polyhaven.com"
 HEADERS = {"User-Agent": "SantiagoMuebles/0.1"}
 
-# id de Poly Haven → (nombre en español, categoría)
+# id de Poly Haven → (nombre en español, categoría). Gabriela quitó (2026-09-29) el sillón mid-century
+# y la mesa de pedestal porque su escala se ve irreal.
 SEED = {
     "sofa_02": ("Sofá Chesterfield de cuero negro", "sofa"),
     "sofa_03": ("Sofá clásico tapizado", "sofa"),
     "modern_arm_chair_01": ("Sillón moderno", "armchair"),
-    "mid_century_lounge_chair": ("Sillón mid-century", "armchair"),
     "modern_coffee_table_01": ("Mesa de centro moderna", "coffee_table"),
     "coffee_table_round_01": ("Mesa de centro redonda", "coffee_table"),
-    "round_wooden_table_01": ("Mesa redonda de pedestal", "dining_table"),
     "dining_chair_02": ("Silla de comedor", "chair"),
     "modern_wooden_cabinet": ("Mueble bajo de madera (TV)", "tv_stand"),
     "wooden_display_shelves_01": ("Estantería de madera", "shelf"),

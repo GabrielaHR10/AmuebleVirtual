@@ -9,7 +9,7 @@
   },
   "extra_dimensions_cm": {},
   "dimensions_source": "tabla_medidas",
-  "dimensions_verified": false,
+  "dimensions_verified": true,
   "monthly_price_cop": null,
   "preferred_mode": "cutout",
   "glb_url": null,
@@ -34,6 +34,7 @@
     "La carpeta dice 'Blanco' pero la tabla dice 'Beige'.",
     "Es click-clack (se abre como cama): la tabla solo da las medidas cerradas.",
     "La foto está ambientada (lámpara, planta, cojines, libros): el recorte automático puede arrastrar cosas.",
+    "Gabriela confirmó las medidas (2026-09-29).",
     "Recorte: ancho/alto 2.10 vs. tabla 2.74 → La foto no está de frente o las medidas no coinciden"
   ],
   "user_created": false,

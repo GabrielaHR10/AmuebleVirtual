@@ -9,7 +9,7 @@
   },
   "extra_dimensions_cm": {},
   "dimensions_source": "tabla_medidas",
-  "dimensions_verified": false,
+  "dimensions_verified": true,
   "monthly_price_cop": null,
   "preferred_mode": "cutout",
   "glb_url": null,
@@ -36,6 +36,7 @@
   "notes": [
     "Proporción OK: foto ancho/alto ≈ 2.08 vs. tabla 198/91 = 2.18 (4 %).",
     "Foto en 3/4 sobre fondo blanco: buena para el recorte, aunque no es totalmente frontal.",
+    "Gabriela confirmó las medidas (2026-09-29).",
     "Recorte: ancho/alto 2.02 vs. tabla 2.18 (OK)"
   ],
   "user_created": false,
