@@ -37,7 +37,7 @@ Versión actual: 0.1.0 · Última actualización: 2026-09-28
 
 ## Fase 3
 - [x] 3.1 Grilla de ocupación — nota: `geometry/occupancy.py` (celdas 10 cm: libre / cerca de obstáculo (< 20 cm) / borde de pared (obstáculo > 1.2 m, con dirección a la pared) / bloqueado (0.05–1.8 m) / desconocido; celdas fuera de la foto = desconocidas). `occupancy.png` y `geometry.npz` (puntos f16) por escena para recalcular. Revisado en cuarto sintético y 3 fotos reales (sala, alcoba, cocina en L): coincide.
-- [ ] 3.2 Heurística — nota:
+- [x] 3.2 Heurística — nota: `placement/heuristic.py` + `geometry2d.py` + POST /api/scenes/{id}/suggest. Contra pared (espalda a 5 cm, frente hacia el cuarto; sofá prefiere mirar a la cámara), mesa de centro 45 cm delante del sofá, sillas alrededor de mesa, decoración en esquinas/al lado del sofá, centro del área libre. Hallazgos: (1) promediar ángulos de pared falla porque MoGe "abre" las paredes laterales (~70° en vez de 90°) → la dirección a la pared sale de las **normales de MoGe** (guardadas en geometry.npz), con recta local de respaldo; (2) exigir 100 % de huella libre era muy estricto → tolerancia 3 % desconocido / 2 % bloqueado. Sala: sofá contra la pared del fondo + mesa delante + planta en la esquina; alcoba: sofá cama contra la pared del fondo.
 - [ ] 3.3 VLM local opcional — nota:
 - [ ] 3.4 UI — nota:
 - [ ] 3.5 Tests — nota:

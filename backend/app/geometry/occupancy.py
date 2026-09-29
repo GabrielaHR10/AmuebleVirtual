@@ -55,8 +55,12 @@ def project_floor_points(xz: np.ndarray, frame: np.ndarray, intrinsics: np.ndarr
 
 
 def build_occupancy(points: np.ndarray, valid: np.ndarray, floor_mask: np.ndarray,
-                    frame: np.ndarray, intrinsics: np.ndarray) -> Occupancy:
-    """points: (H, W, 3) coords three de la cámara; floor_mask: (H, W) bool."""
+                    frame: np.ndarray, intrinsics: np.ndarray, normals: np.ndarray | None = None) -> Occupancy:
+    """points, normals: (H, W, 3) coords three de la cámara; floor_mask: (H, W) bool.
+
+    Con las normales de MoGe, la dirección hacia la pared sale de la orientación real de la pared
+    (mucho más estable que los "escalones" de la grilla).
+    """
     ok = valid & np.isfinite(points).all(-1)
     world = to_floor_world(points[ok], frame)
     is_floor = floor_mask[ok]
@@ -110,8 +114,29 @@ def build_occupancy(points: np.ndarray, valid: np.ndarray, floor_mask: np.ndarra
             state[cand] = WALL_EDGE
     norm = np.linalg.norm(grid.wall_dir, axis=-1, keepdims=True)
     grid.wall_dir = np.where(norm > 0, grid.wall_dir / np.maximum(norm, 1e-9), 0)
+    if normals is not None:
+        _wall_dir_from_normals(grid, state, tall, normals[ok], is_floor, h, iz, ix, inside, frame)
     grid.state = state
     return grid
+
+
+def _wall_dir_from_normals(grid: Occupancy, state: np.ndarray, tall: np.ndarray, normals: np.ndarray,
+                           is_floor: np.ndarray, h: np.ndarray, iz: np.ndarray, ix: np.ndarray,
+                           inside: np.ndarray, frame: np.ndarray) -> None:
+    """Dirección hacia la pared = −(normal horizontal media de la pared vecina)."""
+    rot = np.linalg.inv(frame[:3, :3])
+    nw = np.nan_to_num(normals) @ rot.T  # normales al mundo del piso
+    horiz = np.column_stack([nw[:, 0], nw[:, 2]])
+    wall_pt = inside & ~is_floor & (h > 0.3) & (h < 1.8) & (np.abs(nw[:, 1]) < 0.3)
+    nz, nx = state.shape
+    acc = np.zeros((nz, nx, 2))
+    np.add.at(acc, (iz[wall_pt], ix[wall_pt]), horiz[wall_pt])
+    acc[~tall] = 0
+    # suma en una ventana 5×5 alrededor de cada celda de borde de pared
+    summed = cv2.boxFilter(acc.astype(np.float32), -1, (5, 5), normalize=False)
+    n = np.linalg.norm(summed, axis=-1, keepdims=True)
+    good = (state == WALL_EDGE) & (n[..., 0] > 1e-6)
+    grid.wall_dir[good] = -(summed[good] / n[good])
 
 
 def occupancy_png(grid: Occupancy, scale: int = 4) -> np.ndarray:

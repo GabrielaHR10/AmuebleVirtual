@@ -116,3 +116,22 @@ def test_manual_floor(data_dir, monkeypatch):
     assert body["floor"]["frame"][13] == pytest.approx(-1.3)  # origen (0, -d, 0), column-major
     vertical = client.put(f"/api/scenes/{scene['id']}/floor", json={"normal": [0, 0, 1], "d": 1.3})
     assert vertical.status_code == 422
+
+
+def test_suggest_endpoint(data_dir, monkeypatch):
+    from app.catalog import service as catalog
+    from app.schemas import CatalogItem
+
+    monkeypatch.setattr(scenes, "run_moge", fake_moge)
+    catalog.save_item(CatalogItem(
+        id="sofa-x", name="Sofá X", category="sofa", dimensions_cm={"width": 180, "depth": 85, "height": 80},
+        dimensions_source="usuario", against_wall=True, source="t", license="t"))
+    client = TestClient(app)
+    scene = client.post("/api/scenes", files={"file": ("x.jpg", _jpeg(), "image/jpeg")}).json()
+    res = client.post(f"/api/scenes/{scene['id']}/suggest", json={"item_ids": ["sofa-x"]})
+    assert res.status_code == 200, res.text
+    body = res.json()
+    assert isinstance(body["notes"], list) and body["notes"]
+    for p in body["placements"]:
+        assert p["source"] == "heuristic" and p["item_id"] == "sofa-x"
+    assert client.post(f"/api/scenes/{scene['id']}/suggest", json={"item_ids": ["no-existe"]}).status_code == 404

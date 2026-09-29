@@ -90,10 +90,11 @@ def analyze_photo(src: Path, scene_id: str | None = None) -> Scene:
     t3 = time.perf_counter()
     # Geometría para recalcular la grilla de ocupación después (sugerencias, piso manual)
     np.savez_compressed(out / "geometry.npz", points=points.astype(np.float16), valid=r.mask,
+                        normals=(normals if normals is not None else np.zeros_like(points)).astype(np.float16),
                         floor_mask=floor.mask if floor.mask is not None else np.zeros(r.mask.shape, bool),
                         intrinsics=r.intrinsics)
     if frame is not None:
-        grid = build_occupancy(points, r.mask, floor.mask, frame, r.intrinsics)
+        grid = build_occupancy(points, r.mask, floor.mask, frame, r.intrinsics, normals)
         Image.fromarray(occupancy_png(grid)).save(out / "occupancy.png")
 
     fmask = floor.mask if floor.mask is not None else np.zeros(r.mask.shape, bool)
@@ -209,6 +210,40 @@ def put_floor(scene_id: str, body: ManualFloorBody) -> Scene:
                                          "warnings": sorted(set(warnings))})
         write_json_atomic(scene_dir(scene_id) / "scene.json", scene.model_dump())
     return scene
+
+
+class SuggestBody(BaseModel):
+    item_ids: list[str] = Field(min_length=1, max_length=12)
+    use_vlm: bool = False
+    replace_uids: list[str] = Field(default_factory=list)
+
+
+class SuggestResponse(BaseModel):
+    placements: list[Placement]
+    notes: list[str]
+
+
+@router.post("/{scene_id}/suggest", response_model=SuggestResponse)
+def post_suggest(scene_id: str, body: SuggestBody) -> SuggestResponse:
+    """Sugerir dónde ubicar los muebles (PLAN 3.2/3.3). No guarda nada: el editor muestra "fantasmas"."""
+    from app.placement.service import run_suggest, to_placements
+
+    scene = load_scene(scene_id)
+    try:
+        result, items = run_suggest(scene, body.item_ids, body.replace_uids)
+    except ValueError as e:
+        raise HTTPException(409, str(e)) from None
+    except KeyError as e:
+        raise HTTPException(404, str(e.args[0])) from None
+    notes = list(result.notes)
+    source = "heuristic"
+    if body.use_vlm:
+        from app.placement.vlm import choose_with_vlm
+
+        result, vlm_notes, used = choose_with_vlm(scene, result, items)
+        notes = vlm_notes
+        source = "vlm" if used else "heuristic"
+    return SuggestResponse(placements=to_placements(result, source), notes=notes)
 
 
 class PlacementsBody(BaseModel):
