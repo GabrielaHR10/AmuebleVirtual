@@ -64,7 +64,7 @@ Versión actual: 0.2.0 · Última actualización: 2026-09-28
 - [-] 🛑 Fin Fase 6 — omitido.
 
 ## Fase 7
-- [x] 7.1 Release zip — nota: `crear_release.sh` copia solo archivos del repo (git ls-files) + interfaz compilada; por defecto sin muebles de fotos de tiendas (`--con-fotos-de-tienda` los incluye). v0.2.0: 6.1 MB, 10 muebles CC0. Probado descomprimido en el Mac: instalar (~2 min con caché) → health, página, catálogo y análisis de foto OK. `instalar.command` ahora instala uv con el instalador oficial (sin Homebrew). CI: jobs `build-release` (Linux) + `release-smoke` (Windows limpio: instalar.bat instala uv y modelos, iniciar.bat, health, página y análisis de una foto) en workflow_dispatch.
+- [x] 7.1 Release zip — nota: `crear_release.sh` copia solo archivos del repo (git ls-files) + interfaz compilada; por defecto sin muebles de fotos de tiendas (`--con-fotos-de-tienda` los incluye). v0.2.0: 6.1 MB, 10 muebles CC0. Probado descomprimido en el Mac: instalar (~2 min con caché) → health, página, catálogo y análisis de foto OK. `instalar.command` ahora instala uv con el instalador oficial (sin Homebrew). CI: jobs `build-release` (Linux) + `release-smoke` (Windows limpio: instalar.bat instala uv y modelos, iniciar.bat, health, página y análisis de una foto) en workflow_dispatch. Run 36589177526: todo verde (Windows limpio instaló uv + modelos, arrancó y analizó una foto).
 - [ ] 7.2 Demo en vivo temporal (opcional) — nota:
 
 ## Decisiones tomadas con Gabriela
