@@ -37,3 +37,6 @@ data/catalog/*/thumb_512.png
 
 # Entregas para revisar (imágenes y zip)
 entregas/
+
+# Estado de trabajos en segundo plano (se genera al usar la app)
+data/jobs/
