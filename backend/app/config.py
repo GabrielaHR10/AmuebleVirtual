@@ -15,6 +15,8 @@ SAMPLES_DIR = REPO_DIR / "samples"
 
 load_dotenv(REPO_DIR / ".env")
 
+MOGE_MODEL = os.getenv("MOGE_MODEL", "Ruicheng/moge-2-vitb-normal")
+
 HOST = "127.0.0.1"
 PORT = 8000
 

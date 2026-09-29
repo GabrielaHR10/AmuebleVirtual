@@ -5,21 +5,36 @@ description = "Backend del Estudio Virtual — Santiago Muebles"
 requires-python = ">=3.12,<3.13"
 dependencies = [
     "fastapi>=0.141.1",
+    "moge>=2.0.0",
     "numpy>=2.5.3",
+    "opencv-python-headless>=5.0.0.93",
     "pillow>=12.3.0",
     "pydantic>=2.13.5",
     "python-dotenv>=1.2.3",
     "python-multipart>=0.0.32",
+    "scipy>=1.18.1",
+    "torch>=2.14.0",
+    "torchvision>=0.29.0",
+    "trimesh>=5.1.0",
     "uvicorn[standard]>=0.54.0",
 ]
 
-# Fase 1: MoGe depende de `utils3d` y `pipeline` vía git+https, y en Windows puede no haber Git.
-# Usar URLs de archivo zip de GitHub fijadas a commit:
-#   moge = { url = "https://github.com/microsoft/MoGe/archive/<sha>.zip" }
-# y en [tool.uv] override-dependencies lo mismo para utils3d y pipeline.
-
 [tool.uv]
 package = false
+# MoGe depende de `utils3d` y `pipeline` vía git+https, y en Windows puede no haber Git:
+# se reemplazan por URLs zip de GitHub fijadas a commit (mismos commits que pide MoGe).
+# `gradio` (solo para la demo web de MoGe) y `opencv-python` (chocaría con la versión headless)
+# se excluyen con un marcador que nunca se cumple.
+override-dependencies = [
+    "utils3d @ https://github.com/EasternJournalist/utils3d/archive/3fab839f0be9931dac7c8488eb0e1600c236e183.zip",
+    "pipeline @ https://github.com/EasternJournalist/pipeline/archive/866f059d2a05cde05e4a52211ec5051fd5f276d6.zip",
+    "gradio ; sys_platform == 'never'",
+    "opencv-python ; sys_platform == 'never'",
+]
+
+[tool.uv.sources]
+# Último commit con MoGe-2 antes de la V3 (la V3 exige flex-gemm/CUDA y no soporta macOS)
+moge = { url = "https://github.com/microsoft/MoGe/archive/925b8ed835a7a9cdb7578ba15c658a0afc969030.zip" }
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
