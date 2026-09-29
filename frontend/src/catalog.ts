@@ -28,12 +28,17 @@ export function thumbOf(item: CatalogItem): string | null {
   return item.thumb_url ?? item.cutout_url ?? item.photo_url
 }
 
-/** Tamaño del recorte 2D en metros (PLAN 2.5): tabla si la proporción coincide (≤ 15 %), si no, foto ajustada al alto. */
+/**
+ * Tamaño del recorte 2D en metros: medidas de la tabla si la proporción de la foto coincide (≤ 15 %);
+ * si no (foto en ángulo o desde arriba), se conserva la proporción de la foto ajustada al ANCHO real.
+ * El PLAN 2.5 decía ajustar al alto, pero con fotos en 3/4 eso encogía el mueble (el click-clack de 203 cm
+ * quedaba de ~155 cm) y Gabriela notó que las medidas no se veían bien (2026-09-29).
+ */
 export function billboardSize(item: CatalogItem): { width: number; height: number } {
   const { width, height } = item.dimensions_cm
   const w = width / 100
   const h = height / 100
   const ratio = item.cutout_ratio
   if (!ratio || Math.abs(ratio - w / h) / (w / h) <= 0.15) return { width: w, height: h }
-  return { width: h * ratio, height: h }
+  return { width: w, height: w / ratio }
 }

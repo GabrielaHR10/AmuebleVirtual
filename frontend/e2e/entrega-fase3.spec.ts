@@ -2,7 +2,7 @@ import { copyFileSync, mkdirSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { expect, test, type Page } from '@playwright/test'
 
-// 🛑 Fase 3: 3 ejemplos, sugerencia básica vs. IA local, con tiempos. Solo con ENTREGA=1.
+// 🛑 Fase 3: 3 ejemplos, muebles puestos a mano vs. sugerencia básica, con tiempos. Solo con ENTREGA=1.
 const ROOMS = resolve(import.meta.dirname, '../../samples/rooms')
 const OUT = resolve(import.meta.dirname, '../test-results/entrega-fase3')
 
@@ -12,10 +12,8 @@ const CASES = [
   { photo: 'WhatsApp Image 2026-09-28 at 10.04.08 (2).jpeg', name: '3_alcoba', items: [/Sofá cama click-clack/, /Mesa auxiliar/, /Planta en matera/] },
 ]
 
-async function suggestAndExport(page: Page, name: string, useVlm: boolean): Promise<number> {
+async function suggestAndExport(page: Page, name: string): Promise<number> {
   const panel = page.getByTestId('suggest-panel')
-  const vlmBox = panel.getByLabel('Usar IA local (Ollama)')
-  if ((await vlmBox.isChecked()) !== useVlm) await vlmBox.click()
   const t0 = Date.now()
   await panel.getByRole('button', { name: 'Sugerir ubicación' }).click()
   await expect(panel.getByRole('button', { name: 'Aceptar todas' })).toBeVisible({ timeout: 200_000 })
@@ -30,7 +28,7 @@ async function suggestAndExport(page: Page, name: string, useVlm: boolean): Prom
   return seconds
 }
 
-test('entrega fase 3: básica vs. IA local', async ({ page }) => {
+test('entrega fase 3: a mano vs. sugerencia', async ({ page }) => {
   test.skip(!process.env.ENTREGA, 'Solo para generar la entrega (ENTREGA=1)')
   test.setTimeout(1_200_000)
   mkdirSync(OUT, { recursive: true })
@@ -46,7 +44,6 @@ test('entrega fase 3: básica vs. IA local', async ({ page }) => {
     await page.getByRole('button', { name: 'Exportar PNG' }).click()
     await (await dl).saveAs(`${OUT}/${c.name}_a_mano.png`)
     copyFileSync(resolve(ROOMS, c.photo), `${OUT}/${c.name}_original.jpg`)
-    await suggestAndExport(page, `${c.name}_basica`, false)
-    await suggestAndExport(page, `${c.name}_ia_local`, true)
+    await suggestAndExport(page, `${c.name}_basica`)
   }
 })

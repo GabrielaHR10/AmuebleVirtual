@@ -1,20 +1,14 @@
-import { useEffect, useState } from 'react'
-import { getVlmStatus, savePlacements, suggestPlacements } from '../api/client'
+import { useState } from 'react'
+import { savePlacements, suggestPlacements } from '../api/client'
 import { acceptGhosts, useStudio } from '../store/useStudio'
 
 /** "Sugerir ubicación" (PLAN 3.4): reacomoda los muebles puestos y/o agrega los elegidos. */
 export default function SuggestPanel() {
   const { scene, placements, catalog, ghosts, setGhosts, pushToast } = useStudio()
   const [extra, setExtra] = useState<string[]>([])
-  const [useVlm, setUseVlm] = useState(false)
-  const [vlm, setVlm] = useState<{ available: boolean; reason: string | null }>({ available: false, reason: null })
+  // IA local escondida para ubicar (Gabriela 2026-09-29: tarda ~50 s y no mejora): se usa solo la básica
+  const useVlm = false
   const [busy, setBusy] = useState(false)
-
-  useEffect(() => {
-    getVlmStatus()
-      .then((s) => setVlm({ available: s.available, reason: s.reason }))
-      .catch(() => setVlm({ available: false, reason: 'No se pudo consultar la IA local' }))
-  }, [])
 
   if (!scene?.floor.frame) return null
   const names = new Map(catalog.map((i) => [i.id, i.name]))
@@ -69,15 +63,8 @@ export default function SuggestPanel() {
               ))}
             </div>
           )}
-          <label
-            className={`flex items-center gap-2 text-xs ${vlm.available ? '' : 'opacity-50'}`}
-            title={vlm.available ? 'La IA local elige entre las opciones válidas (tarda ~1 min)' : vlm.reason ?? ''}
-          >
-            <input type="checkbox" disabled={!vlm.available} checked={useVlm} onChange={() => setUseVlm(!useVlm)} />
-            Usar IA local (Ollama)
-          </label>
           <button onClick={run} disabled={busy} className="w-full rounded bg-sky-700 py-1.5 font-medium text-white disabled:opacity-60">
-            {busy ? (useVlm ? 'La IA local está pensando… (~1 min)' : 'Buscando lugares…') : 'Sugerir ubicación'}
+            {busy ? 'Buscando lugares…' : 'Sugerir ubicación'}
           </button>
         </>
       ) : (

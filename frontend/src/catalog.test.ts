@@ -18,10 +18,10 @@ describe('billboardSize', () => {
   it('usa las medidas de la tabla si la proporción coincide', () => {
     expect(billboardSize(base)).toEqual({ width: 2, height: 0.8 })
   })
-  it('conserva la proporción de la foto ajustada al alto si difiere > 15 %', () => {
+  it('conserva la proporción de la foto ajustada al ancho real si difiere > 15 %', () => {
     const s = billboardSize({ ...base, cutout_ratio: 1.5 })
-    expect(s.height).toBe(0.8)
-    expect(s.width).toBeCloseTo(1.2)
+    expect(s.width).toBe(2)
+    expect(s.height).toBeCloseTo(2 / 1.5)
   })
   it('sin recorte usa la tabla', () => {
     expect(billboardSize({ ...base, cutout_ratio: null })).toEqual({ width: 2, height: 0.8 })

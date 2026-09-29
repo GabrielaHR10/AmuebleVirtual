@@ -28,7 +28,7 @@ PHASE = {"coffee_table": 1, "tv_stand": 1, "armchair": 2, "chair": 2, "nightstan
 OCCLUSION_PENALTY = 0.25
 # Camino libre (90 cm) desde donde está la persona que tomó la foto hasta el frente del sofá.
 # Solo la mesa de centro, el tapete y el comedor pueden ir en él.
-CORRIDOR_HALF_W = 0.45
+CORRIDOR_HALF_W = 0.6  # 1.2 m: el recorrido desde la puerta de entrada (Gabriela, 2026-09-29)
 CORRIDOR_STOP_M = 0.9
 PATH_OK = {"coffee_table", "rug", "dining_table"}
 TOP_K = 8
@@ -174,8 +174,12 @@ class Planner:
     def corner_candidates(self, it: Item) -> list[tuple[Box, str]]:
         """Esquinas: se desliza a lo largo de la pared para no meterse en la pared de al lado."""
         out = []
+        sofas = [b for b, k in zip(self.placed, self.kinds, strict=True) if k == "sofa"]
         for box, note in self.wall_candidates(it):
             if not self._is_corner(box):
+                continue
+            # con sofá, solo esquinas de la zona de estar (a menos de 2 m del sofá)
+            if sofas and min(np.hypot(box.x - s.x, box.z - s.z) for s in sofas) > 2.0:
                 continue
             for slide in (0.0, 0.1, -0.1, 0.2, -0.2, 0.3, -0.3, 0.4, -0.4):
                 c = np.array([box.x, box.z]) + box.right() * slide
@@ -209,7 +213,10 @@ class Planner:
     @staticmethod
     def blocks_path(it: Item, box: Box, note: str, path: np.ndarray | None) -> bool:
         """Solo los muebles sueltos cuentan: lo que va contra una pared, en una esquina o pegado al sofá no."""
-        if it.category in PATH_OK or path is None or any(k in note for k in ("contra", "esquina", "lado del sofá")):
+        if it.category in PATH_OK or path is None:
+            return False
+        # lo que va contra una pared (sofá, TV) no estorba; la decoración sí cuenta aunque esté en una esquina
+        if it.category not in DECOR and any(k in note for k in ("contra", "lado del sofá")):
             return False
         return overlap(box.corners(), path)
 
@@ -228,7 +235,8 @@ class Planner:
                 return (1 + float(box.front() @ (to / max(np.linalg.norm(to), 1e-6)))) / 2
             return 1 - abs(facing_camera(box))
         if cat in DECOR:
-            return 1.0 if "esquina" in note else 0.85 if "sofá" in note else 0.4
+            # pegada al sofá = dentro de la zona de estar; una esquina lejana puede estar en un recorrido
+            return 1.0 if "sofá" in note else 0.8 if "esquina" in note else 0.4
         if cat == "armchair":
             return 1.0 if "mesa de centro" in note else 0.8 if "sofá" in note else 0.4
         if cat == "coffee_table":
@@ -279,8 +287,11 @@ class Planner:
         if cat == "armchair":
             return self.beside_coffee_table(it) + self.beside_sofa(it) + self.wall_candidates(it)
         if cat in DECOR:
-            # plantas y lámparas: solo en esquinas o pegadas al sofá (nunca sueltas en el cuarto)
-            return self.corner_candidates(it) + self.beside_sofa(it)
+            # plantas y lámparas: pegadas al sofá, como parte de la zona de estar. Una esquina sola puede estar
+            # en el recorrido desde la puerta (Gabriela, 2026-09-29); solo se usa si no hay sofá.
+            if any(k == "sofa" for k in self.kinds):
+                return self.beside_sofa(it)
+            return self.corner_candidates(it)
         if it.against_wall:
             return self.wall_candidates(it)
         return self.free_region_candidates(it) + self.wall_candidates(it)
