@@ -5,6 +5,7 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
 from app import __version__, scenes
+from app.catalog import routes as catalog_routes
 from app.config import DATA_DIR, STATIC_DIR, resolve_device
 
 app = FastAPI(title="Estudio Virtual — Santiago Muebles", version=__version__)
@@ -18,6 +19,7 @@ def health() -> dict:
 
 
 api.include_router(scenes.router)
+api.include_router(catalog_routes.router)
 app.include_router(api)
 
 DATA_DIR.mkdir(parents=True, exist_ok=True)

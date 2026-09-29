@@ -18,10 +18,10 @@ Versión actual: 0.0.0 · Última actualización: 2026-09-28
 - [x] 1.5 Endpoint POST /api/scenes — nota: `scenes.py` + `storage.py`; guarda image.jpg/scene.json/occlusion.glb/floor_mask.png/depth.png/debug.jpg. Test rápido con MoGe simulado (corre en CI) + test slow con 14 fotos (≥ 80 % con piso y altura 0.8–2.2 m: pasa). curl: ~1.1 s por foto (3.4 s la primera, carga del modelo). HEIC → 400 en español.
 - [x] 1.6 Precarga de modelos — nota: `app.prefetch` (MoGe) llamado desde `instalar.command` e `instalar.bat`; mensaje en español si falla la descarga.
 - [x] 1.7 Dimensionar el espacio — nota: `room.py`: área (celdas 5 cm), ancho×fondo (minAreaRect; recorte del 2 % sobre celdas, no píxeles), techo (RANSAC mitad superior con normales), confianza; cuadrícula de 1 m + medidas en debug.jpg. Cuarto sintético 4 m × techo 2.4 m: OK. Fotos reales: techo 2.27–2.74 m, sala 3.5×3.8 m visible. Sin `medidas_reales.json` todavía (el test slow lo usa si aparece).
-- [ ] 🛑 Fin Fase 1
+- [x] 🛑 Fin Fase 1 — nota: resultados buenos (piso OK en 12/13 fotos de cuartos, cuadrícula alineada con las baldosas). Por pedido de Gabriela (avanzar sin esperar) se sigue a la Fase 2 y el informe se le entrega en el siguiente mensaje.
 
 ## Fase 2
-- [ ] 2.1 Catálogo: servicio y endpoints — nota:
+- [x] 2.1 Catálogo: servicio y endpoints — nota: `catalog/service.py` (carpeta por mueble + catalog.json regenerado con escritura atómica y lock), `app.catalog.build`, GET/POST/DELETE /api/catalog (DELETE solo `user_created`). 5 tests.
 - [ ] 2.2a Importar los muebles de Gabriela — nota:
 - [ ] 2.2b Catálogo complementario Poly Haven — nota:
 - [ ] 2.3 Miniaturas — nota:

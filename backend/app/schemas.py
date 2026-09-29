@@ -47,6 +47,8 @@ class FurnitureSpec(BaseModel):
     raw_table: dict[str, str] | None = None
     main_photo: str | None = None
     notes: list[str] = Field(default_factory=list)
+    # Solo los muebles creados desde la UI se pueden borrar con DELETE /api/catalog/{id}
+    user_created: bool = False
 
     @model_validator(mode="after")
     def _extras_positive(self) -> "FurnitureSpec":
@@ -54,6 +56,11 @@ class FurnitureSpec(BaseModel):
         if bad:
             raise ValueError(f"Medidas extra deben ser > 0: {', '.join(bad)}")
         return self
+
+
+CatalogItem = FurnitureSpec
+
+AGAINST_WALL_CATEGORIES = {"sofa", "bed", "tv_stand", "shelf", "wardrobe", "desk", "nightstand"}
 
 
 # ---------- Escena (PLAN §5.1) ----------
