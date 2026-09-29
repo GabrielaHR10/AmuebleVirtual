@@ -17,11 +17,12 @@ from pydantic import BaseModel, Field
 from app.config import MOGE_MODEL
 from app.geometry.coords import cv_to_three, floor_frame, fov_y_deg, to_column_major
 from app.geometry.floor import FloorResult, detect_floor, draw_floor_debug
+from app.geometry.lighting import estimate_lighting
 from app.geometry.moge_runner import UnsupportedImageError, load_image, run_moge
 from app.geometry.occlusion import build_occlusion_mesh, export_glb
 from app.geometry.occupancy import build_occupancy, occupancy_png
 from app.geometry.room import draw_grid, estimate_room, room_text
-from app.schemas import CameraInfo, FloorInfo, ImageInfo, Placement, RoomEstimate, Scene
+from app.schemas import CameraInfo, FloorInfo, ImageInfo, Lighting, Placement, RoomEstimate, Scene
 from app.storage import SCENES_DIR, file_url, new_scene_id, read_json, scene_dir, write_json_atomic
 
 SAVE_MAX_SIDE = 2560
@@ -93,6 +94,10 @@ def analyze_photo(src: Path, scene_id: str | None = None) -> Scene:
                         normals=(normals if normals is not None else np.zeros_like(points)).astype(np.float16),
                         floor_mask=floor.mask if floor.mask is not None else np.zeros(r.mask.shape, bool),
                         intrinsics=r.intrinsics)
+    # luz de la foto (color del piso, ventana) a la resolución de inferencia
+    small = np.asarray(img.resize(r.mask.shape[::-1], Image.Resampling.BILINEAR))
+    floor_inf = floor.mask if floor.mask is not None else np.zeros(r.mask.shape, bool)
+    lighting = estimate_lighting(small, points, r.mask, floor_inf, frame)
     if frame is not None:
         grid = build_occupancy(points, r.mask, floor.mask, frame, r.intrinsics, normals)
         Image.fromarray(occupancy_png(grid)).save(out / "occupancy.png")
@@ -116,6 +121,7 @@ def analyze_photo(src: Path, scene_id: str | None = None) -> Scene:
         floor=_floor_info(floor),
         camera_height_m=round(floor.d, 3) if floor.found else None,
         room_estimate=RoomEstimate.model_validate(room),
+        lighting=Lighting.model_validate(lighting),
         warnings=floor.warnings,
         assets={
             "occlusion_glb": file_url(out / "occlusion.glb"),

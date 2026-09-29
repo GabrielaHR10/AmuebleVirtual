@@ -39,5 +39,6 @@
   ],
   "user_created": false,
   "cutout_ratio": 2.1023,
+  "cutout_luminance": 0.2686,
   "photo_warning": "La foto no está de frente o las medidas no coinciden"
 }

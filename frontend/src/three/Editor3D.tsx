@@ -1,4 +1,4 @@
-import { Suspense, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react'
+import { Suspense, useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { Canvas, useThree, type ThreeEvent } from '@react-three/fiber'
 import { Environment } from '@react-three/drei'
 import { Matrix4, Object3D, PerspectiveCamera, type DirectionalLight } from 'three'
@@ -7,6 +7,7 @@ import { useStudio, type Toggles } from '../store/useStudio'
 import { dropPoint } from './math'
 import { ExportBridge, HelperGroup } from './exportImage'
 import FloorGrid from './FloorGrid'
+import { autoLight, lightPosition } from './lighting'
 import OcclusionMesh from './OcclusionMesh'
 import ShadowFloor from './ShadowFloor'
 
@@ -26,7 +27,7 @@ function SceneCamera({ scene }: { scene: Scene }) {
 /** Exposición de los muebles 3D (los recortes la aplican en su material). */
 function Exposure() {
   const gl = useThree((s) => s.gl)
-  const exposure = useStudio((s) => s.exposure)
+  const exposure = useStudio((s) => s.light.exposure)
   useLayoutEffect(() => {
     gl.toneMappingExposure = exposure
   }, [gl, exposure])
@@ -36,19 +37,19 @@ function Exposure() {
 /** Luces del grupo del piso: la direccional apunta al centro del piso visible. */
 function FloorLights({ target }: { target: [number, number, number] }) {
   const light = useRef<DirectionalLight>(null)
+  const settings = useStudio((s) => s.light)
   const [targetObj] = useState(() => new Object3D())
   useLayoutEffect(() => {
     targetObj.position.set(...target)
     if (light.current) light.current.target = targetObj
   }, [target, targetObj])
-  const [x, , z] = target
   return (
     <>
       <primitive object={targetObj} />
-      <hemisphereLight args={['#ffffff', '#8d7b68', 0.8]} />
+      <hemisphereLight args={[settings.hemiColor, '#8d7b68', settings.hemiIntensity]} />
       <directionalLight
         ref={light}
-        position={[x + 2, 4, z + 2]}
+        position={lightPosition(settings, target)}
         intensity={1.6}
         castShadow
         shadow-mapSize={[2048, 2048]}
@@ -116,6 +117,8 @@ export default function Editor3D({ scene, toggles, children, onFloorPointerMisse
     return [p.x, 0, p.z]
   }, [frame, scene])
   const maskUrl = scene.assets.floor_mask_png
+  const setLight = useStudio((s) => s.setLight)
+  useEffect(() => setLight(autoLight(scene, center)), [scene, center, setLight]) // ajuste automático de luz
   const manualActive = useStudio((s) => s.manualFloor.active)
   const onPick = (e: ThreeEvent<MouseEvent>) => {
     const { manualFloor, setManualFloor } = useStudio.getState()

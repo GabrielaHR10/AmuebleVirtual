@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import type { CatalogItem, Placement, Scene } from '../api/client'
+import { DEFAULT_LIGHT, type LightSettings } from '../three/lighting'
 
 export interface Toggles {
   occlusion: boolean
@@ -42,8 +43,10 @@ interface StudioState {
   setGhosts: (g: { placements: Placement[]; notes: string[]; replaceUids: string[] } | null) => void
   /** Ajustes de vista (PLAN 2.11). */
   shadowOpacity: number
-  exposure: number
-  setView: (v: { shadowOpacity?: number; exposure?: number }) => void
+  setView: (v: { shadowOpacity?: number }) => void
+  /** Luz que imita la de la foto (PLAN 4.1); se ajusta sola al cargar la escena. */
+  light: LightSettings
+  setLight: (patch: Partial<LightSettings>) => void
   /** Avisos flotantes (errores del servidor en español). */
   toasts: { id: number; text: string }[]
   pushToast: (text: string) => void
@@ -130,8 +133,9 @@ export const useStudio = create<StudioState>((set) => ({
   ghosts: null,
   setGhosts: (ghosts) => set({ ghosts }),
   shadowOpacity: 0.3,
-  exposure: 1,
   setView: (v) => set(v),
+  light: DEFAULT_LIGHT,
+  setLight: (patch) => set((s) => ({ light: { ...s.light, ...patch } })),
   toasts: [],
   pushToast: (text) => {
     const id = Date.now() + Math.random()

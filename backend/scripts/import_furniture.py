@@ -9,6 +9,7 @@ import argparse
 import sys
 from pathlib import Path
 
+import numpy as np
 from PIL import Image, ImageOps
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
@@ -17,6 +18,7 @@ from app import storage
 from app.catalog import service
 from app.catalog.cutout import proportion_check
 from app.config import SAMPLES_DIR
+from app.geometry.lighting import srgb_luminance
 from app.schemas import FurnitureSpec
 
 
@@ -35,11 +37,15 @@ def import_folder(folder: Path, force: bool) -> FurnitureSpec:
     else:
         with Image.open(dest / "cutout.png") as c:
             ratio = c.width / c.height
+            arr = np.asarray(c.convert("RGBA"))
+        opaque = arr[..., 3] > 127
+        lum = round(float(np.median(srgb_luminance(arr[..., :3][opaque]))), 4)
         dims = item.dimensions_cm
         item = item.model_copy(update={
             "cutout_url": storage.file_url(dest / "cutout.png"),
             "thumb_url": storage.file_url(dest / "thumb.png"),
             "cutout_ratio": round(ratio, 4),
+            "cutout_luminance": lum,
             "photo_warning": proportion_check(ratio, dims.width, dims.height),
             "preferred_mode": "cutout",
         })

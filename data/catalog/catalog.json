@@ -36,6 +36,7 @@
       ],
       "user_created": false,
       "cutout_ratio": 1.0593,
+      "cutout_luminance": 0.1736,
       "photo_warning": null
     },
     {
@@ -81,6 +82,7 @@
       ],
       "user_created": false,
       "cutout_ratio": 2.0237,
+      "cutout_luminance": 0.0566,
       "photo_warning": null
     },
     {
@@ -124,6 +126,7 @@
       ],
       "user_created": false,
       "cutout_ratio": 2.1023,
+      "cutout_luminance": 0.2686,
       "photo_warning": "La foto no está de frente o las medidas no coinciden"
     },
     {
@@ -153,6 +156,7 @@
       "notes": [],
       "user_created": false,
       "cutout_ratio": null,
+      "cutout_luminance": null,
       "photo_warning": null
     },
     {
@@ -182,6 +186,7 @@
       "notes": [],
       "user_created": false,
       "cutout_ratio": null,
+      "cutout_luminance": null,
       "photo_warning": null
     },
     {
@@ -211,6 +216,7 @@
       "notes": [],
       "user_created": false,
       "cutout_ratio": null,
+      "cutout_luminance": null,
       "photo_warning": null
     },
     {
@@ -240,6 +246,7 @@
       "notes": [],
       "user_created": false,
       "cutout_ratio": null,
+      "cutout_luminance": null,
       "photo_warning": null
     },
     {
@@ -269,6 +276,7 @@
       "notes": [],
       "user_created": false,
       "cutout_ratio": null,
+      "cutout_luminance": null,
       "photo_warning": null
     },
     {
@@ -298,6 +306,7 @@
       "notes": [],
       "user_created": false,
       "cutout_ratio": null,
+      "cutout_luminance": null,
       "photo_warning": null
     },
     {
@@ -327,6 +336,7 @@
       "notes": [],
       "user_created": false,
       "cutout_ratio": null,
+      "cutout_luminance": null,
       "photo_warning": null
     },
     {
@@ -356,6 +366,7 @@
       "notes": [],
       "user_created": false,
       "cutout_ratio": null,
+      "cutout_luminance": null,
       "photo_warning": null
     },
     {
@@ -385,6 +396,7 @@
       "notes": [],
       "user_created": false,
       "cutout_ratio": null,
+      "cutout_luminance": null,
       "photo_warning": null
     },
     {
@@ -414,6 +426,7 @@
       "notes": [],
       "user_created": false,
       "cutout_ratio": null,
+      "cutout_luminance": null,
       "photo_warning": null
     }
   ]

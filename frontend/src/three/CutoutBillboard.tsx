@@ -1,7 +1,7 @@
 import { useMemo, useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
 import { useTexture } from '@react-three/drei'
-import { CanvasTexture, DoubleSide, SRGBColorSpace, Vector3, type Mesh } from 'three'
+import { CanvasTexture, Color, DoubleSide, SRGBColorSpace, Vector3, type Mesh } from 'three'
 import type { CatalogItem } from '../api/client'
 import { billboardSize } from '../catalog'
 import { useStudio } from '../store/useStudio'
@@ -35,7 +35,12 @@ export default function CutoutBillboard({ item, scaleK, ghost = false }: { item:
   const texture = useTexture(item.cutout_url!)
   texture.colorSpace = SRGBColorSpace
   const plane = useRef<Mesh>(null)
-  const exposure = useStudio((s) => s.exposure)
+  const light = useStudio((s) => s.light)
+  // brillo y tono de la luz del cuarto sobre la foto del mueble (30 % del tinte de la luz ambiente)
+  const tint = useMemo(() => {
+    const c = new Color(light.hemiColor)
+    return [c.r, c.g, c.b].map((v) => light.exposure * (0.7 + 0.3 * v)) as [number, number, number]
+  }, [light.hemiColor, light.exposure])
   const shadowOpacity = useStudio((s) => s.shadowOpacity)
   const size = useMemo(() => billboardSize(item), [item])
   const w = size.width * scaleK
@@ -57,11 +62,12 @@ export default function CutoutBillboard({ item, scaleK, ghost = false }: { item:
 
   return (
     <>
-      <mesh ref={plane} position-y={h / 2} renderOrder={2}>
+      {/* la silueta proyecta sombra (el mapa de sombras respeta el alphaTest del recorte) */}
+      <mesh ref={plane} position-y={h / 2} renderOrder={2} castShadow={!ghost}>
         <planeGeometry args={[w, h]} />
         <meshBasicMaterial
           map={texture}
-          color={[exposure, exposure, exposure]}
+          color={tint}
           transparent
           opacity={ghost ? 0.45 : 1}
           depthWrite={!ghost}
@@ -70,8 +76,19 @@ export default function CutoutBillboard({ item, scaleK, ghost = false }: { item:
           toneMapped={false}
         />
       </mesh>
+      {/* sombra de contacto: una capa oscura y ajustada justo en la base + una suave más amplia */}
+      <mesh rotation-x={-Math.PI / 2} position-y={0.0025} renderOrder={1} userData={{ noMask: true }}>
+        <planeGeometry args={[footW * 0.95, footD * 0.8]} />
+        <meshBasicMaterial
+          map={getContactTexture()}
+          transparent
+          opacity={Math.min(1, shadowOpacity * 2.2)}
+          depthWrite={false}
+          toneMapped={false}
+        />
+      </mesh>
       <mesh rotation-x={-Math.PI / 2} position-y={0.002} renderOrder={1} userData={{ noMask: true }}>
-        <planeGeometry args={[footW * 1.1, footD * 1.1]} />
+        <planeGeometry args={[footW * 1.25, footD * 1.3]} />
         <meshBasicMaterial
           map={getContactTexture()}
           transparent

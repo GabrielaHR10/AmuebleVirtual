@@ -9,7 +9,10 @@ import SuggestPanel from '../components/SuggestPanel'
 import Toasts from '../components/Toasts'
 import { useEditorKeys } from '../hooks/useEditorKeys'
 import { useStudio, type Toggles } from '../store/useStudio'
+import { Matrix4 } from 'three'
 import Editor3D from '../three/Editor3D'
+import { autoLight } from '../three/lighting'
+import { dropPoint } from '../three/math'
 import { downloadBlob, exportComposite, exportFileName, exportFurnitureMask } from '../three/exportImage'
 import FurnitureLayer from '../three/FurnitureLayer'
 
@@ -130,35 +133,38 @@ function ExportButtons() {
 }
 
 function ViewSliders() {
-  const { shadowOpacity, exposure, setView } = useStudio()
+  const { shadowOpacity, setView, light, setLight, scene } = useStudio()
+  const slider = (label: string, value: number, min: number, max: number, step: number, on: (v: number) => void) => (
+    <label className="block">
+      {label}
+      <input type="range" min={min} max={max} step={step} value={value} onChange={(e) => on(Number(e.target.value))} className="w-full" />
+    </label>
+  )
   return (
     <div className="mt-2 space-y-1 text-xs">
-      <label className="block">
-        Intensidad de sombra: {Math.round(shadowOpacity * 100)} %
-        <input
-          type="range"
-          min={0}
-          max={0.8}
-          step={0.05}
-          value={shadowOpacity}
-          onChange={(e) => setView({ shadowOpacity: Number(e.target.value) })}
-          className="w-full"
-        />
-      </label>
-      <label className="block">
-        Exposición de muebles: {exposure.toFixed(2)}
-        <input
-          type="range"
-          min={0.5}
-          max={1.5}
-          step={0.05}
-          value={exposure}
-          onChange={(e) => setView({ exposure: Number(e.target.value) })}
-          className="w-full"
-        />
-      </label>
+      <div className="flex items-center justify-between">
+        <span className="font-medium">Luz</span>
+        <button
+          onClick={() => scene && setLight(autoLight(scene, sceneCenter(scene)))}
+          className="rounded bg-stone-100 px-2 py-0.5"
+        >
+          Ajuste automático de luz
+        </button>
+      </div>
+      {slider(`Intensidad de sombra: ${Math.round(shadowOpacity * 100)} %`, shadowOpacity, 0, 0.8, 0.05, (v) => setView({ shadowOpacity: v }))}
+      {slider(`Dirección de la luz: ${Math.round(light.azimuth)}°`, light.azimuth, 0, 359, 1, (v) => setLight({ azimuth: v }))}
+      {slider(`Altura de la luz: ${Math.round(light.elevation)}°`, light.elevation, 10, 80, 1, (v) => setLight({ elevation: v }))}
+      {slider(`Luz ambiente: ${light.hemiIntensity.toFixed(2)}`, light.hemiIntensity, 0.3, 1.5, 0.05, (v) => setLight({ hemiIntensity: v }))}
+      {slider(`Exposición de muebles: ${light.exposure.toFixed(2)}`, light.exposure, 0.5, 1.5, 0.05, (v) => setLight({ exposure: v }))}
     </div>
   )
+}
+
+/** Centro de los muebles (punto del piso bajo el centro de la imagen). */
+function sceneCenter(scene: Scene): [number, number, number] {
+  if (!scene.floor.frame) return [0, 0, -3]
+  const p = dropPoint(new Matrix4().fromArray(scene.floor.frame), new Matrix4().fromArray(scene.camera.matrix_world))
+  return [p.x, 0, p.z]
 }
 
 /** Guarda los muebles 1 s después del último cambio (PLAN 2.7). */

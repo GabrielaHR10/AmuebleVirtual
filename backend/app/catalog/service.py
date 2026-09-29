@@ -10,9 +10,11 @@ import threading
 import unicodedata
 from pathlib import Path
 
+import numpy as np
 from PIL import Image
 
 from app import storage
+from app.geometry.lighting import srgb_luminance
 from app.schemas import CatalogItem
 
 log = logging.getLogger("santiago.catalog")
@@ -106,10 +108,14 @@ def apply_cutout(item: CatalogItem, photo: Image.Image) -> CatalogItem:
     cut.image.save(folder / "cutout.png")
     cut.thumb.save(folder / "thumb.png")
     dims = item.dimensions_cm
+    arr = np.asarray(cut.image)
+    opaque = arr[..., 3] > 127
+    lum = float(np.median(srgb_luminance(arr[..., :3][opaque]))) if opaque.any() else None
     return item.model_copy(update={
         "cutout_url": storage.file_url(folder / "cutout.png"),
         "thumb_url": storage.file_url(folder / "thumb.png"),
         "cutout_ratio": round(cut.ratio, 4),
+        "cutout_luminance": round(lum, 4) if lum is not None else None,
         "photo_warning": proportion_check(cut.ratio, dims.width, dims.height),
         "preferred_mode": "cutout",
     })

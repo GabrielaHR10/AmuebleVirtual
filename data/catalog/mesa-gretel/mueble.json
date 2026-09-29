@@ -34,5 +34,6 @@
   ],
   "user_created": false,
   "cutout_ratio": 1.0593,
+  "cutout_luminance": 0.1736,
   "photo_warning": null
 }

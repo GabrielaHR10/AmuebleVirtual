@@ -18,6 +18,7 @@ import {
 
 // Capa de "ayudas" (cuadrícula, huellas, marcadores): se ve en el editor pero no en la exportación.
 export const HELPER_LAYER = 1
+const MAX_RENDER_SIDE = 4096
 
 export function markHelper(o: Object3D | null) {
   o?.traverse((c) => c.layers.set(HELPER_LAYER))
@@ -110,13 +111,16 @@ function toBlob(canvas: HTMLCanvasElement): Promise<Blob> {
 /** Foto + muebles (con sombras) al tamaño natural de la foto (PLAN 2.10). */
 export async function exportComposite(photoUrl: string, width: number, height: number): Promise<Blob> {
   const photo = await loadImage(photoUrl)
-  const three = renderAt(width, height)
+  // supermuestreo (PLAN 4.1): renderizar al doble y reducir suaviza los bordes de los muebles
+  const ss = Math.max(1, Math.min(2, MAX_RENDER_SIDE / Math.max(width, height)))
+  const three = renderAt(Math.round(width * ss), Math.round(height * ss))
   const out = document.createElement('canvas')
   out.width = width
   out.height = height
   const g = out.getContext('2d')!
+  g.imageSmoothingQuality = 'high'
   g.drawImage(photo, 0, 0, width, height)
-  g.drawImage(three, 0, 0)
+  g.drawImage(three, 0, 0, width, height)
   return toBlob(out)
 }
 

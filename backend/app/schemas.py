@@ -51,6 +51,7 @@ class FurnitureSpec(BaseModel):
     user_created: bool = False
     # Recorte 2D: ancho/alto del PNG y aviso si no coincide con la tabla (> 15 %, PLAN 2.5)
     cutout_ratio: float | None = None
+    cutout_luminance: float | None = None  # brillo medio del recorte, para igualarlo a la foto (4.1)
     photo_warning: str | None = None
 
     @model_validator(mode="after")
@@ -111,6 +112,12 @@ class Placement(BaseModel):
     source: Literal["manual", "heuristic", "vlm"] = "manual"
 
 
+class Lighting(BaseModel):
+    floor_rgb: list[float] | None = None
+    floor_luminance: float | None = None
+    light_source: list[float] | None = None  # mundo del piso (m)
+
+
 class Scene(BaseModel):
     id: str
     kind: Literal["photo"] = "photo"
@@ -120,6 +127,7 @@ class Scene(BaseModel):
     camera_height_m: float | None = None
     scale_k: float = 1.0
     room_estimate: RoomEstimate | None = None
+    lighting: Lighting | None = None
     warnings: list[str] = Field(default_factory=list)
     assets: dict[str, str] = Field(default_factory=dict)
     placements: list[Placement] = Field(default_factory=list)

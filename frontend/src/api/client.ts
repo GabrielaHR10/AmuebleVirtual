@@ -47,6 +47,7 @@ export interface CatalogItem {
   notes: string[]
   user_created: boolean
   cutout_ratio: number | null
+  cutout_luminance?: number | null
   photo_warning: string | null
 }
 
@@ -113,6 +114,7 @@ export interface Scene {
   camera_height_m: number | null
   scale_k: number
   room_estimate: RoomEstimate | null
+  lighting?: { floor_rgb: number[] | null; floor_luminance: number | null; light_source: number[] | null } | null
   warnings: string[]
   assets: Record<string, string>
   placements: Placement[]
