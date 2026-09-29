@@ -1,0 +1,42 @@
+{
+  "id": "mueble-azul-edingburgh",
+  "name": "Sofá azul Edingburgh",
+  "category": "sofa",
+  "dimensions_cm": {
+    "width": 198.0,
+    "depth": 100.0,
+    "height": 91.0
+  },
+  "extra_dimensions_cm": {},
+  "dimensions_source": "tabla_medidas",
+  "dimensions_verified": false,
+  "monthly_price_cop": null,
+  "preferred_mode": "cutout",
+  "glb_url": null,
+  "cutout_url": "/files/catalog/mueble-azul-edingburgh/cutout.png",
+  "photo_url": "/files/catalog/mueble-azul-edingburgh/foto.jpg",
+  "thumb_url": "/files/catalog/mueble-azul-edingburgh/thumb.png",
+  "yaw_offset_deg": 0.0,
+  "against_wall": true,
+  "source": "Fotos de prueba de Gabriela",
+  "license": "solo pruebas internas",
+  "raw_table": {
+    "Estilo": "Contemporáneo",
+    "Peso de resistencia": "150k por puesto",
+    "Tipo De Relleno": "Espuma Industrial",
+    "Color": "Azul",
+    "RequiereArmado": "Si",
+    "Medidas (en cm)": "Alto: 91 Ancho: 198 Profundidad: 100",
+    "Peso Neto Kg.": "107",
+    "Material del tapiz": "Tela",
+    "Material de la estructura interna": "Madera De Pino",
+    "No Incluye": ""
+  },
+  "main_photo": "foto.jpg",
+  "notes": [
+    "Proporción OK: foto ancho/alto ≈ 2.08 vs. tabla 198/91 = 2.18 (4 %).",
+    "Foto en 3/4 sobre fondo blanco: buena para el recorte, aunque no es totalmente frontal.",
+    "Recorte: ancho/alto 2.02 vs. tabla 2.18 (OK)"
+  ],
+  "user_created": false
+}

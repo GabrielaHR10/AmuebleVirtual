@@ -12,6 +12,7 @@ dependencies = [
     "pydantic>=2.13.5",
     "python-dotenv>=1.2.3",
     "python-multipart>=0.0.32",
+    "rembg[cpu]>=2.0.85",
     "scipy>=1.18.1",
     "torch>=2.14.0",
     "torchvision>=0.29.0",

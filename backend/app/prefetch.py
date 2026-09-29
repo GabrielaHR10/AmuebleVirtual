@@ -15,9 +15,19 @@ def prefetch_moge() -> None:
     print(f"  listo en {time.perf_counter() - t:.0f} s", flush=True)
 
 
+def prefetch_rembg() -> None:
+    from app.catalog.cutout import get_session
+
+    print("- Modelo para quitar el fondo a los muebles (~220 MB la primera vez)...", flush=True)
+    t = time.perf_counter()
+    get_session()
+    print(f"  listo en {time.perf_counter() - t:.0f} s", flush=True)
+
+
 def main() -> None:
     try:
         prefetch_moge()
+        prefetch_rembg()
     except Exception as e:  # noqa: BLE001 — mensaje claro para el usuario final
         print(f"\nNo se pudo descargar el modelo: {e}\n"
               "Revisa tu conexión a internet y vuelve a correr el instalador "

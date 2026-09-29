@@ -1,0 +1,36 @@
+{
+  "id": "mesa-gretel",
+  "name": "Mesa de comedor extensible Gretel",
+  "category": "dining_table",
+  "dimensions_cm": {
+    "width": 80.0,
+    "depth": 140.0,
+    "height": 75.0
+  },
+  "extra_dimensions_cm": {},
+  "dimensions_source": "tabla_medidas",
+  "dimensions_verified": true,
+  "monthly_price_cop": null,
+  "preferred_mode": "cutout",
+  "glb_url": null,
+  "cutout_url": "/files/catalog/mesa-gretel/cutout.png",
+  "photo_url": "/files/catalog/mesa-gretel/foto.jpg",
+  "thumb_url": "/files/catalog/mesa-gretel/thumb.png",
+  "yaw_offset_deg": 0.0,
+  "against_wall": false,
+  "source": "Fotos de prueba de Gabriela",
+  "license": "solo pruebas internas",
+  "raw_table": {
+    "Descripción": "Mesa De Comedor Extensible Gretel Negro",
+    "Medidas": "Alto: 75 Ancho: 80 Profundidad: 140"
+  },
+  "main_photo": "foto.jpg",
+  "notes": [
+    "Gabriela confirmó (2026-09-28) dejarla como dice la tabla: frente (width) 80 cm, fondo (depth) 140 cm.",
+    "Proporción no concluyente: la foto está en diagonal (mesa ≈ 1.1 ancho/alto aparente; tabla 80/75 = 1.07, invertida 140/75 = 1.87).",
+    "La foto incluye 4 sillas y decoración: el recorte las incluye (no se pueden separar). Conviene una foto de la mesa sola.",
+    "Es extensible: la tabla no da la medida abierta. La descripción dice 'Negro' pero en la foto la cubierta se ve de madera (patas oscuras).",
+    "Recorte: ancho/alto 1.06 vs. tabla 1.07 (OK)"
+  ],
+  "user_created": false
+}
