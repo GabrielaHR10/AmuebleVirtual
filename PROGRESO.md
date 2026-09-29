@@ -17,7 +17,7 @@ Versión actual: 0.0.0 · Última actualización: 2026-09-28
 - [x] 1.4 Malla de oclusión — nota: `occlusion.py` (grilla ≤ 320 px, sin inválidos/saltos > 4 %/piso). En 5 fotos: 97k–144k caras, 1.8–2.6 MB, ~16 ms. Test recarga el GLB con trimesh.
 - [x] 1.5 Endpoint POST /api/scenes — nota: `scenes.py` + `storage.py`; guarda image.jpg/scene.json/occlusion.glb/floor_mask.png/depth.png/debug.jpg. Test rápido con MoGe simulado (corre en CI) + test slow con 14 fotos (≥ 80 % con piso y altura 0.8–2.2 m: pasa). curl: ~1.1 s por foto (3.4 s la primera, carga del modelo). HEIC → 400 en español.
 - [x] 1.6 Precarga de modelos — nota: `app.prefetch` (MoGe) llamado desde `instalar.command` e `instalar.bat`; mensaje en español si falla la descarga.
-- [ ] 1.7 Dimensionar el espacio — nota:
+- [x] 1.7 Dimensionar el espacio — nota: `room.py`: área (celdas 5 cm), ancho×fondo (minAreaRect; recorte del 2 % sobre celdas, no píxeles), techo (RANSAC mitad superior con normales), confianza; cuadrícula de 1 m + medidas en debug.jpg. Cuarto sintético 4 m × techo 2.4 m: OK. Fotos reales: techo 2.27–2.74 m, sala 3.5×3.8 m visible. Sin `medidas_reales.json` todavía (el test slow lo usa si aparece).
 - [ ] 🛑 Fin Fase 1
 
 ## Fase 2
@@ -93,3 +93,14 @@ Versión actual: 0.0.0 · Última actualización: 2026-09-28
 | 10.04.08 (7) baño | mps | 0.94 s | 1.38 m | 4 % |
 | 10.04.08 (8) vista ventana | mps | 0.94 s | 7.63 m (patio exterior) | 8 % |
 | 10.04.08 ventana | mps | 0.96 s | 1.32 m | 1 % |
+
+### Medidas estimadas del espacio (1.7)
+| Foto | Altura cámara | Visible ancho×fondo | Área visible | Techo | Confianza |
+|---|---|---|---|---|---|
+| 10.04.07 (1) sala | 1.24 m | 3.5×3.8 m | 10.7 m² | 2.33 m | alta |
+| 10.04.07 (2) cocina | 1.59 m | 2.9×2.8 m | 3.6 m² | 2.70 m | media |
+| 10.04.07 pasillo→sala | 1.16 m | 3.0×5.8 m | 10.8 m² | 2.28 m | media |
+| 10.04.08 (1) | 1.45 m | 2.1×1.9 m | 2.5 m² | 2.36 m | media |
+| 10.04.08 (2) alcoba | 1.41 m | 2.6×1.8 m | 3.9 m² | 2.48 m | alta |
+| 10.04.08 (3) | 1.27 m | 1.0×2.8 m | 1.8 m² | 2.27 m | baja |
+| resto (baños, ventana) | — | < 1.5 m² visibles | — | — | baja |

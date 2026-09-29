@@ -1,5 +1,6 @@
 """Detección del plano del piso (PLAN 1.3). Todo en coordenadas three de la cámara (metros)."""
 
+from collections.abc import Callable
 from dataclasses import dataclass, field
 
 import cv2
@@ -156,8 +157,13 @@ def detect_floor(points: np.ndarray, valid: np.ndarray, normals: np.ndarray | No
     return FloorResult(True, n, float(d), ratio, mask, warnings)
 
 
-def draw_floor_debug(image_rgb: np.ndarray, result: FloorResult) -> np.ndarray:
-    """Piso en verde semitransparente y altura de cámara escrita. Devuelve RGB uint8."""
+def draw_floor_debug(image_rgb: np.ndarray, result: FloorResult,
+                     decorate: Callable[[np.ndarray], np.ndarray] | None = None,
+                     extra_text: str | None = None) -> np.ndarray:
+    """Piso en verde semitransparente y altura de cámara escrita. Devuelve RGB uint8.
+
+    `decorate` dibuja encima del verde (p. ej. la cuadrícula de 1 m); `extra_text` va en una 2.ª línea.
+    """
     out = image_rgb.copy()
     h, w = out.shape[:2]
     if result.found and result.mask is not None:
@@ -166,10 +172,14 @@ def draw_floor_debug(image_rgb: np.ndarray, result: FloorResult) -> np.ndarray:
         text = f"camara {result.d:.2f} m | piso {result.inlier_ratio:.0%}"
     else:
         text = "piso no encontrado"
+    if decorate is not None:
+        out = decorate(out)
     if result.warnings:
         text += " | " + ",".join(result.warnings)
     scale = max(w, h) / 1400
-    org = (int(12 * scale), int(40 * scale))
-    cv2.putText(out, text, org, cv2.FONT_HERSHEY_SIMPLEX, scale, (0, 0, 0), int(5 * scale) + 1, cv2.LINE_AA)
-    cv2.putText(out, text, org, cv2.FONT_HERSHEY_SIMPLEX, scale, (255, 255, 255), int(2 * scale) + 1, cv2.LINE_AA)
+    for i, line in enumerate(t for t in (text, extra_text) if t):
+        org = (int(12 * scale), int((40 + 45 * i) * scale))
+        cv2.putText(out, line, org, cv2.FONT_HERSHEY_SIMPLEX, scale, (0, 0, 0), int(5 * scale) + 1, cv2.LINE_AA)
+        cv2.putText(out, line, org, cv2.FONT_HERSHEY_SIMPLEX, scale, (255, 255, 255), int(2 * scale) + 1,
+                    cv2.LINE_AA)
     return out

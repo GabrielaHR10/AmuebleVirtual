@@ -45,7 +45,7 @@ def test_post_scene_creates_files_and_contract(data_dir, monkeypatch):
     assert scene["floor"]["found"] and len(scene["floor"]["frame"]) == 16
     assert scene["camera_height_m"] == pytest.approx(1.5, abs=0.03)
     assert scene["camera"]["matrix_world"] == [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
-    assert set(scene["timings_ms"]) == {"load", "infer", "floor", "mesh"}
+    assert set(scene["timings_ms"]) == {"load", "infer", "floor", "mesh", "room"}
     folder = data_dir / "scenes" / scene["id"]
     for name in ("image.jpg", "scene.json", "occlusion.glb", "floor_mask.png", "depth.png", "debug.jpg"):
         assert (folder / name).is_file(), name
@@ -67,6 +67,8 @@ def test_scene_errors_are_in_spanish(data_dir):
     assert bad.status_code == 400 and "JPG o PNG" in bad.json()["detail"]
 
 
+_REAL = SAMPLES_DIR / "rooms" / "medidas_reales.json"
+REAL_MEASURES = json.loads(_REAL.read_text(encoding="utf-8")) if _REAL.is_file() else {}
 ROOM_PHOTOS = sorted(p for p in (SAMPLES_DIR / "rooms").glob("*") if p.suffix.lower() in {".jpg", ".jpeg", ".png"})
 
 
@@ -80,6 +82,13 @@ def test_real_rooms(data_dir):
         good = scene.floor.found and h is not None and 0.8 < h < 2.2
         ok += good
         report.append(f"{path.name}: found={scene.floor.found} h={h} warnings={scene.warnings}")
+        truth = REAL_MEASURES.get(path.name)
+        est = scene.room_estimate
+        if truth and est and est.floor_extent_m:
+            pairs = [("ancho_m", est.floor_extent_m.width), ("fondo_m", est.floor_extent_m.depth),
+                     ("techo_m", est.ceiling_height_m)]
+            errs = [f"{k} {100 * (v - truth[k]) / truth[k]:+.0f} %" for k, v in pairs if v and truth.get(k)]
+            report.append(f"   error vs. medidas reales: {', '.join(errs)}")
     print("\n".join(report))
     # Algunas fotos de prueba no muestran piso (ducha, vista por la ventana): se exige la gran mayoría
     assert ok >= 0.8 * len(ROOM_PHOTOS), "\n".join(report)

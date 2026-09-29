@@ -18,7 +18,8 @@ from app.geometry.coords import cv_to_three, floor_frame, fov_y_deg, to_column_m
 from app.geometry.floor import FloorResult, detect_floor, draw_floor_debug
 from app.geometry.moge_runner import UnsupportedImageError, load_image, run_moge
 from app.geometry.occlusion import build_occlusion_mesh, export_glb
-from app.schemas import CameraInfo, FloorInfo, ImageInfo, Scene
+from app.geometry.room import draw_grid, estimate_room, room_text
+from app.schemas import CameraInfo, FloorInfo, ImageInfo, RoomEstimate, Scene
 from app.storage import SCENES_DIR, file_url, new_scene_id, read_json, scene_dir, write_json_atomic
 
 SAVE_MAX_SIDE = 2560
@@ -81,12 +82,17 @@ def analyze_photo(src: Path, scene_id: str | None = None) -> Scene:
     mesh = build_occlusion_mesh(points, r.mask, floor.mask)
     export_glb(mesh, out / "occlusion.glb")
     t2 = time.perf_counter()
+    frame = floor_frame(floor.normal, floor.d) if floor.found else None
+    room = estimate_room(points, r.mask, normals, floor, frame)
+    t3 = time.perf_counter()
 
     fmask = floor.mask if floor.mask is not None else np.zeros(r.mask.shape, bool)
     Image.fromarray(fmask.astype(np.uint8) * 255).resize((w, h), Image.Resampling.NEAREST) \
         .save(out / "floor_mask.png")
     depth_png(r.depth, r.mask).save(out / "depth.png")
-    Image.fromarray(draw_floor_debug(np.asarray(saved), floor)).save(out / "debug.jpg", quality=88)
+    grid = (lambda im: draw_grid(im, fmask, frame, r.intrinsics)) if frame is not None else None
+    debug = draw_floor_debug(np.asarray(saved), floor, grid, room_text(room) if floor.found else None)
+    Image.fromarray(debug).save(out / "debug.jpg", quality=88)
 
     scene = Scene(
         id=scene_id,
@@ -98,6 +104,7 @@ def analyze_photo(src: Path, scene_id: str | None = None) -> Scene:
         ),
         floor=_floor_info(floor),
         camera_height_m=round(floor.d, 3) if floor.found else None,
+        room_estimate=RoomEstimate.model_validate(room),
         warnings=floor.warnings,
         assets={
             "occlusion_glb": file_url(out / "occlusion.glb"),
@@ -109,6 +116,7 @@ def analyze_photo(src: Path, scene_id: str | None = None) -> Scene:
         timings_ms={
             "load": r.load_ms, "infer": r.infer_ms,
             "floor": round((t1 - t0) * 1000), "mesh": round((t2 - t1) * 1000),
+            "room": round((t3 - t2) * 1000),
         },
         created_at=datetime.now(UTC).astimezone().isoformat(timespec="seconds"),
     )
