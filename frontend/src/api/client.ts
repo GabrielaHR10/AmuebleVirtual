@@ -178,3 +178,18 @@ export async function suggestPlacements(
 export async function getVlmStatus(): Promise<{ available: boolean; model: string; reason: string | null }> {
   return parse(await fetch('/api/scenes/vlm/status'))
 }
+
+export interface ExtractedDimensions {
+  raw_table: Record<string, string>
+  width_cm: number
+  depth_cm: number
+  height_cm: number
+  extra_dimensions_cm: Record<string, number>
+  units_detected: string | null
+}
+
+export async function extractDimensions(table: File): Promise<ExtractedDimensions> {
+  const form = new FormData()
+  form.append('table_image', table)
+  return parse<ExtractedDimensions>(await fetch('/api/catalog/extract-dimensions', { method: 'POST', body: form }))
+}

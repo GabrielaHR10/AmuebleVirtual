@@ -41,7 +41,7 @@ Versión actual: 0.1.0 · Última actualización: 2026-09-28
 - [x] 3.3 VLM local opcional — nota: Ollama 0.34.4 (brew, servicio) + `qwen3-vl:4b-instruct` (3.3 GB). `placement/vlm.py`: dibuja el top-8 de candidatos por mueble (contorno + número), pide JSON con `format: json`, valida número/item y cruces; si falla → heurística + nota. GET /api/scenes/vlm/status. Prueba en la sala: 71 s (con carga del modelo), razones en español; eligió la mesa de centro girada 90° (menos natural que la heurística). Tests con respuestas simuladas y Ollama apagado.
 - [x] 3.4 UI — nota: panel "Sugerir ubicación" (reacomoda los muebles puestos + agrega elegidos), switch "Usar IA local" deshabilitado con motivo si Ollama no está; fantasmas semitransparentes con huella azul punteada (no se exportan), notas, Aceptar / Aceptar todas / Descartar (un solo paso de deshacer). Guarda los muebles antes de pedir la sugerencia.
 - [x] 3.5 Tests — nota: cuarto sintético 4×5.6 m → sofá contra la pared del fondo mirando a la cámara, mesa de centro a 45 ± 5 cm delante y alineada, sin cruces (`test_heuristic.py`); VLM con respuestas simuladas/Ollama apagado (`test_vlm.py`); e2e `suggest.spec.ts` (≥ 1 fantasma, aceptar). Capturas antes/fantasmas/aceptadas revisadas.
-- [ ] 3.6 Leer tabla de medidas automáticamente — nota:
+- [x] 3.6 Leer tabla de medidas automáticamente — nota: `catalog/extract.py` + POST /api/catalog/extract-dimensions (prompt con las reglas de §5.2, validación pydantic/rangos, sin Ollama → 503 "escríbelas a mano"). Formulario de Catálogo se prellena y muestra la fila original; al guardar queda `vlm_extraida` + verificada. **Aciertos: 9/9** (3 tablas × ancho/fondo/alto, ±1 cm), ~8 s por tabla con el modelo cargado.
 - [ ] 🛑 Fin Fase 3
 
 ## Fase 4

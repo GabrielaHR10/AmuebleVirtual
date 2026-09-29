@@ -1,5 +1,13 @@
 import { useCallback, useEffect, useState, type FormEvent } from 'react'
-import { createCatalogItem, deleteCatalogItem, getCatalog, type CatalogItem, type Category } from '../api/client'
+import {
+  createCatalogItem,
+  deleteCatalogItem,
+  extractDimensions,
+  getCatalog,
+  type CatalogItem,
+  type Category,
+  type ExtractedDimensions,
+} from '../api/client'
 import { CATEGORY_LABELS, formatDims, thumbOf } from '../catalog'
 
 function ItemCard({ item, onDelete }: { item: CatalogItem; onDelete: (id: string) => void }) {
@@ -49,6 +57,28 @@ function ItemCard({ item, onDelete }: { item: CatalogItem; onDelete: (id: string
 function NewItemForm({ onCreated }: { onCreated: (item: CatalogItem) => void }) {
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [reading, setReading] = useState(false)
+  const [extracted, setExtracted] = useState<ExtractedDimensions | null>(null)
+  const [readError, setReadError] = useState<string | null>(null)
+
+  /** Al elegir la foto de la tabla, la IA local intenta leer las medidas y prellena el formulario (PLAN 3.6). */
+  async function readTable(file: File, form: HTMLFormElement) {
+    setReading(true)
+    setReadError(null)
+    setExtracted(null)
+    try {
+      const dims = await extractDimensions(file)
+      const set = (name: string, v: number) => ((form.elements.namedItem(name) as HTMLInputElement).value = String(v))
+      set('width_cm', dims.width_cm)
+      set('depth_cm', dims.depth_cm)
+      set('height_cm', dims.height_cm)
+      setExtracted(dims)
+    } catch (e) {
+      setReadError(e instanceof Error ? e.message : String(e))
+    } finally {
+      setReading(false)
+    }
+  }
 
   async function submit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -56,11 +86,13 @@ function NewItemForm({ onCreated }: { onCreated: (item: CatalogItem) => void }) 
     const data = new FormData(form)
     const table = data.get('table_image')
     if (table instanceof File && table.size === 0) data.delete('table_image')
+    if (extracted) data.set('dimensions_source', 'vlm_extraida')
     setBusy(true)
     setError(null)
     try {
       onCreated(await createCatalogItem(data))
       form.reset()
+      setExtracted(null)
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err))
     } finally {
@@ -81,8 +113,28 @@ function NewItemForm({ onCreated }: { onCreated: (item: CatalogItem) => void }) 
       </label>
       <label className="block text-sm">
         Foto de la tabla de medidas (opcional)
-        <input name="table_image" type="file" accept="image/jpeg,image/png" className={input} />
+        <input
+          name="table_image"
+          type="file"
+          accept="image/jpeg,image/png"
+          className={input}
+          onChange={(e) => e.target.files?.[0] && readTable(e.target.files[0], e.target.form!)}
+        />
       </label>
+      {reading && <p className="text-xs text-sky-700">Leyendo la tabla con la IA local… (~10 s)</p>}
+      {readError && <p className="text-xs text-amber-700">{readError}</p>}
+      {extracted && (
+        <div data-testid="extracted" className="rounded bg-sky-50 p-2 text-xs text-sky-900">
+          Medidas leídas de la tabla: <b>revísalas antes de guardar</b> (ancho = frente).
+          <ul className="mt-1 text-stone-600">
+            {Object.entries(extracted.raw_table).map(([k, v]) => (
+              <li key={k}>
+                {k}: {v}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
       <label className="block text-sm">
         Nombre
         <input name="name" required placeholder="Sofá gris tres puestos" className={input} />

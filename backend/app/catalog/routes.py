@@ -1,7 +1,7 @@
 """Endpoints /api/catalog."""
 
 import io
-from typing import Annotated
+from typing import Annotated, Literal
 
 from fastapi import APIRouter, File, Form, HTTPException, UploadFile
 from PIL import Image, ImageOps, UnidentifiedImageError
@@ -40,6 +40,7 @@ def create_item(
     depth_cm: Annotated[float, Form()],
     height_cm: Annotated[float, Form()],
     table_image: Annotated[UploadFile | None, File()] = None,
+    dimensions_source: Annotated[Literal["usuario", "vlm_extraida"], Form()] = "usuario",
 ) -> CatalogItem:
     try:
         dims = Dimensions(width=width_cm, depth=depth_cm, height=height_cm)
@@ -50,7 +51,7 @@ def create_item(
     table = _read_photo(table_image) if table_image is not None and table_image.filename else None
     item = CatalogItem(
         id=service.unique_id(name), name=name.strip(), category=category, dimensions_cm=dims,
-        dimensions_source="usuario", dimensions_verified=True,
+        dimensions_source=dimensions_source, dimensions_verified=True,  # el usuario las confirmó al guardar
         against_wall=category in AGAINST_WALL_CATEGORIES,
         source="Subido por el usuario", license="propio", user_created=True,
     )
@@ -59,6 +60,19 @@ def create_item(
     except ValueError as e:  # no se detectó ningún mueble en la foto
         service.discard(item.id)
         raise HTTPException(422, f"{e}. Toma la foto de frente, con fondo despejado y buena luz.") from None
+
+
+@router.post("/extract-dimensions")
+def extract_dimensions(table_image: Annotated[UploadFile, File()]) -> dict:
+    """Lee la foto de la tabla de medidas con la IA local para prellenar el formulario (PLAN 3.6)."""
+    from app.catalog.extract import ExtractionError
+    from app.catalog.extract import extract_dimensions as run
+
+    img = _read_photo(table_image)
+    try:
+        return run(img).model_dump()
+    except ExtractionError as e:
+        raise HTTPException(503, str(e)) from None
 
 
 @router.delete("/{item_id}")
