@@ -1,6 +1,13 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import type { CatalogItem } from '../api/client'
-import { addPlacement, duplicatePlacement, removePlacement, updatePlacement, useStudio } from './useStudio'
+import {
+  addPlacement,
+  duplicatePlacement,
+  removePlacement,
+  scaleFromCalibration,
+  updatePlacement,
+  useStudio,
+} from './useStudio'
 
 const sofa = { id: 'sofa', preferred_mode: 'cutout', glb_url: null } as CatalogItem
 
@@ -46,5 +53,17 @@ describe('historial de muebles', () => {
     const uid = useStudio.getState().selectedUid!
     for (let i = 0; i < 40; i++) updatePlacement(uid, { x: i })
     expect(useStudio.getState().past.length).toBe(30)
+  })
+})
+
+describe('calibración de escala', () => {
+  it('scale_k = escena / real', () => {
+    expect(scaleFromCalibration([[0, 0], [3, 0]], 330)).toBeCloseTo(3 / 3.3)
+    expect(scaleFromCalibration([[0, 0], [0, -2]], 200)).toBeCloseTo(1)
+  })
+  it('rechaza valores absurdos', () => {
+    expect(scaleFromCalibration([[0, 0]], 100)).toBeNull()
+    expect(scaleFromCalibration([[0, 0], [3, 0]], 0)).toBeNull()
+    expect(scaleFromCalibration([[0, 0], [3, 0]], 10)).toBeNull()
   })
 })

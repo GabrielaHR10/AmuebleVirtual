@@ -1,4 +1,5 @@
 import type { Scene } from '../api/client'
+import { useStudio } from '../store/useStudio'
 
 const WARNING_TEXT: Record<string, string> = {
   piso_no_encontrado: 'No se encontró el piso en la foto.',
@@ -7,7 +8,18 @@ const WARNING_TEXT: Record<string, string> = {
 }
 
 export default function RoomEstimateCard({ scene }: { scene: Scene }) {
-  const r = scene.room_estimate
+  // Tras calibrar, las medidas del espacio se dividen por scale_k (PLAN 1.7)
+  const k = useStudio((s) => s.scaleK)
+  const raw = scene.room_estimate
+  const r = raw && {
+    ...raw,
+    visible_floor_area_m2: raw.visible_floor_area_m2 == null ? null : raw.visible_floor_area_m2 / (k * k),
+    floor_extent_m: raw.floor_extent_m && {
+      width: raw.floor_extent_m.width / k,
+      depth: raw.floor_extent_m.depth / k,
+    },
+    ceiling_height_m: raw.ceiling_height_m == null ? null : raw.ceiling_height_m / k,
+  }
   const fmt = (v: number | null | undefined, unit: string) => (v == null ? '—' : `${v.toFixed(1)} ${unit}`)
   return (
     <section data-testid="room-card" className="rounded-lg border border-stone-200 bg-white p-3 text-sm">
@@ -21,7 +33,7 @@ export default function RoomEstimateCard({ scene }: { scene: Scene }) {
           <dt className="text-stone-500">Altura de techo</dt>
           <dd>{r.ceiling_height_m ? `${r.ceiling_height_m.toFixed(2)} m` : 'no se ve el techo'}</dd>
           <dt className="text-stone-500">Confianza</dt>
-          <dd className="capitalize">{r.confidence}</dd>
+          <dd className="capitalize">{k !== 1 ? 'calibrada' : r.confidence}</dd>
         </dl>
       ) : (
         <p className="text-stone-500">Sin datos.</p>

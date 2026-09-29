@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { getCatalog, getScene, getScenes, savePlacements, uploadScene, type Scene } from '../api/client'
+import CalibrationPanel from '../components/CalibrationPanel'
 import CatalogPanel from '../components/CatalogPanel'
 import RoomEstimateCard from '../components/RoomEstimateCard'
 import SelectedPanel from '../components/SelectedPanel'
@@ -135,6 +136,7 @@ export default function PhotoStudio() {
                 </label>
               ))}
             </section>
+            <CalibrationPanel />
             <RoomEstimateCard scene={scene} />
           </aside>
         )}

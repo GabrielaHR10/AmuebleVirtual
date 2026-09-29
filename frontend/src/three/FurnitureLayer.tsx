@@ -28,6 +28,36 @@ interface Drag {
   before: Placement[]
 }
 
+/** Puntos y línea de la calibración, con la distancia medida en la escena. */
+function CalibrationMarks() {
+  const calibration = useStudio((s) => s.calibration) // (un selector que cree arreglos nuevos cicla en zustand v5)
+  const points = calibration.active ? calibration.points : []
+  if (!points.length) return null
+  const y = 0.01
+  const pts = points.map(([x, z]) => [x, y, z] as [number, number, number])
+  const dist = points.length === 2 ? Math.hypot(points[1][0] - points[0][0], points[1][1] - points[0][1]) : null
+  return (
+    <>
+      {pts.map((p, i) => (
+        <mesh key={i} position={p} renderOrder={4}>
+          <sphereGeometry args={[0.04, 16, 16]} />
+          <meshBasicMaterial color="#f59e0b" depthTest={false} />
+        </mesh>
+      ))}
+      {pts.length === 2 && (
+        <>
+          <Line points={pts} color="#f59e0b" lineWidth={3} depthTest={false} renderOrder={4} />
+          <Html position={[(pts[0][0] + pts[1][0]) / 2, 0.15, (pts[0][2] + pts[1][2]) / 2]} center>
+            <div className="whitespace-nowrap rounded bg-amber-500 px-2 py-0.5 text-xs font-medium text-white">
+              {Math.round(dist! * 100)} cm en la foto
+            </div>
+          </Html>
+        </>
+      )}
+    </>
+  )
+}
+
 function Footprint({ w, d, ok }: { w: number; d: number; ok: boolean }) {
   const y = 0.004
   const pts: [number, number, number][] = [
@@ -93,6 +123,7 @@ export default function FurnitureLayer() {
 
   const onDown = useCallback(
     (e: ThreeEvent<PointerEvent>, p: Placement) => {
+      if (useStudio.getState().calibration.active) return // en calibración el clic marca el piso
       e.stopPropagation()
       select(p.uid)
       const group = floorGroup.current
@@ -117,13 +148,25 @@ export default function FurnitureLayer() {
     [preview],
   )
 
+  const onFloorClick = useCallback((e: ThreeEvent<MouseEvent>) => {
+    const { calibration, setCalibration } = useStudio.getState()
+    const group = floorGroup.current
+    if (!calibration.active || !group) return
+    e.stopPropagation()
+    const local = group.worldToLocal(e.point.clone())
+    const points = calibration.points.length >= 2 ? [] : calibration.points
+    setCalibration({ active: true, points: [...points, [local.x, local.z]] })
+  }, [])
+
   const byId = new Map(catalog.map((i) => [i.id, i]))
   return (
     <>
+      <CalibrationMarks />
       {/* Plano invisible de arrastre (raycast contra y = 0) */}
       <mesh
         rotation-x={-Math.PI / 2}
         onPointerMove={onMove}
+        onClick={onFloorClick}
         onUpdate={(m) => (floorGroup.current = m.parent)}
       >
         <planeGeometry args={[60, 60]} />

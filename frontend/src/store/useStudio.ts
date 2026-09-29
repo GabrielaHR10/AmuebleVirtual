@@ -31,6 +31,9 @@ interface StudioState {
   undo: () => void
   redo: () => void
   setScaleK: (k: number) => void
+  /** Calibración de escala (PLAN 2.8): puntos del piso (x, z) marcados por el usuario. */
+  calibration: { active: boolean; points: [number, number][] }
+  setCalibration: (c: { active: boolean; points: [number, number][] }) => void
   /** Avisos de los modelos 3D (alto del GLB ≠ ficha), por item_id. */
   modelWarnings: Record<string, string | null>
   setModelWarning: (itemId: string, warning: string | null) => void
@@ -72,6 +75,7 @@ export const useStudio = create<StudioState>((set) => ({
       selectedUid: null,
       past: [],
       future: [],
+      calibration: { active: false, points: [] },
     }),
   setCatalog: (catalog) => set({ catalog }),
   toggle: (key) =>
@@ -103,6 +107,8 @@ export const useStudio = create<StudioState>((set) => ({
       return { placements: next, past: pushPast(s.past, s.placements), future: rest }
     }),
   setScaleK: (scaleK) => set({ scaleK }),
+  calibration: { active: false, points: [] },
+  setCalibration: (calibration) => set({ calibration }),
   modelWarnings: {},
   setModelWarning: (itemId, warning) =>
     set((s) => (s.modelWarnings[itemId] === warning ? {} : { modelWarnings: { ...s.modelWarnings, [itemId]: warning } })),
@@ -143,4 +149,13 @@ export function duplicatePlacement(uid: string) {
   const copy = { ...src, uid: newUid(), x: src.x + 0.3, z: src.z + 0.3, source: 'manual' as const }
   commit([...placements, copy])
   select(copy.uid)
+}
+
+/** scale_k = distancia en la escena / distancia real (PLAN 2.8). */
+export function scaleFromCalibration(points: [number, number][], realCm: number): number | null {
+  if (points.length !== 2 || !(realCm > 0)) return null
+  const [[x1, z1], [x2, z2]] = points
+  const scene = Math.hypot(x2 - x1, z2 - z1)
+  const k = scene / (realCm / 100)
+  return k > 0.2 && k < 5 ? k : null
 }
