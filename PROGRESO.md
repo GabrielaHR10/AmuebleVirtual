@@ -14,7 +14,7 @@ Versión actual: 0.0.0 · Última actualización: 2026-09-28
 - [x] 1.1 Ejecutar MoGe-2 — nota: `moge_runner.py` + `scripts/probe_moge.py` sobre las 14 fotos. **MPS**, ~0.94 s/foto (1024 px), carga del modelo ~2.7 s. Intrínsecos **normalizados** (cx = cy = 0.500), fov_y 60–72°. MoGe `main` ya es V3 (exige flex-gemm/CUDA, sin macOS) → fijado al commit `925b8ed` (MoGe-2). `gradio` y `opencv-python` excluidos por override. `pillow-heif` quitado (GPLv2) → HEIC rechazado con mensaje; pendiente preguntar. Foto `10.04.08 (8)` es vista por la ventana (no es cuarto).
 - [x] 1.2 Conversiones y utilidades (coords.py) — nota: `cv_to_three`, `fov_y_deg`, `floor_frame`, `to_column_major` + 10 tests (§4: y<0 abajo-centro, det=+1, x_axis>0, plano sintético, cámara inclinada, d<0 invertido).
 - [x] 1.3 Detección del piso — nota: RANSAC del plan + 3 ajustes verificados con las fotos: (1) descartar planos a < 30 cm de la cámara (franjas falsas), (2) usar las normales de MoGe (candidatos y máscara solo en superficies que miran arriba), (3) si hay un plano horizontal ≥ 30 cm más abajo con puntos suficientes (mesón), el piso es el de abajo. 12/13 fotos de cuartos OK; la ducha (08 (5)) → piso_no_encontrado (correcto). `scripts/debug_floor.py` genera los debug.
-- [ ] 1.4 Malla de oclusión — nota:
+- [x] 1.4 Malla de oclusión — nota: `occlusion.py` (grilla ≤ 320 px, sin inválidos/saltos > 4 %/piso). En 5 fotos: 97k–144k caras, 1.8–2.6 MB, ~16 ms. Test recarga el GLB con trimesh.
 - [ ] 1.5 Endpoint POST /api/scenes — nota:
 - [ ] 1.6 Precarga de modelos — nota:
 - [ ] 1.7 Dimensionar el espacio — nota:
