@@ -13,16 +13,13 @@ fail() {
 
 echo "=== Estudio Virtual — instalación ==="
 
+export PATH="$HOME/.local/bin:$PATH"
 if ! command -v uv >/dev/null 2>&1; then
-  echo ""
-  echo "Falta 'uv' (el instalador de Python)."
-  echo "Instálalo con Homebrew abriendo la Terminal y escribiendo:"
-  echo ""
-  echo "    brew install uv"
-  echo ""
-  echo "(Si no tienes Homebrew: https://brew.sh)  Luego vuelve a abrir este instalador."
-  fail "uv no está instalado."
+  echo "→ Instalando uv (el instalador de Python)…"
+  curl -LsSf https://astral.sh/uv/install.sh | sh || fail "No se pudo instalar uv. Revisa tu conexión a internet."
+  export PATH="$HOME/.local/bin:$PATH"
 fi
+command -v uv >/dev/null 2>&1 || fail "No se encontró uv después de instalarlo. Cierra esta ventana y vuelve a intentar."
 
 echo "→ Instalando Python y librerías (la primera vez puede tardar varios minutos)…"
 (cd backend && uv sync) || fail "No se pudieron instalar las librerías. Revisa tu conexión a internet y vuelve a intentar."

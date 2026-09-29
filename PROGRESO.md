@@ -1,5 +1,5 @@
 # Progreso — Estudio Virtual
-Versión actual: 0.1.0 · Última actualización: 2026-09-28
+Versión actual: 0.2.0 · Última actualización: 2026-09-28
 
 ## Fase 0
 - [x] 0.1 Repo y documentos base — nota: estructura de §3 con `.gitkeep`, `.gitignore`, `.env.example`, `THIRD_PARTY.md`, `README.md`. `frontend/` se crea en 0.3 (Vite exige carpeta nueva).
@@ -52,19 +52,19 @@ Versión actual: 0.1.0 · Última actualización: 2026-09-28
 
 ## Fase 5
 - [x] 5.1 Video a fotogramas clave — nota: `jobs.py` (hilo + JSON, GET /api/jobs/{id}), `video/keyframes.py` con **OpenCV** (su FFmpeg es LGPL; imageio-ffmpeg podía traer binario GPL), `videos.py` (POST /api/videos, GET /api/videos/{id}, POST /api/videos/{id}/keyframes). Por ventana se toman los 3 más nítidos y se elige el que muestra más piso (MoGe): elegir solo por nitidez daba primeros planos de puertas/closets. Límite 3 min (el plan decía 60 s, pensado para 5.2). Video de Gabriela (150 s): 6 fotogramas en ~70 s, 5 con piso; resumen techo ≈ 2.23 m. Página **Video** con progreso, tira de fotogramas y "Amoblar este fotograma". e2e `video.spec.ts`.
-- [ ] 🛑 Tras 5.1 — nota: preguntado a Gabriela: ¿basta con fotogramas o seguimos con video en movimiento (5.2–5.3)?
-- [ ] 5.2 Seguimiento de cámara (SfM) — nota:
-- [ ] 5.3 Render del video — nota:
-- [ ] 🛑 Tras 5.3
+- [x] 🛑 Tras 5.1 — nota: Gabriela (2026-09-29): bastan los fotogramas (opción A) → se omiten 5.2–5.3 y la Fase 6; se pasa a la Fase 7.
+- [-] 5.2 Seguimiento de cámara (SfM) — nota: omitido por decisión de Gabriela.
+- [-] 5.3 Render del video — nota: omitido por decisión de Gabriela.
+- [-] 🛑 Tras 5.3 — omitido.
 
 ## Fase 6
-- [ ] 6.1 Proveedor foto→3D — nota:
-- [ ] 6.2 Normalización — nota:
-- [ ] 6.3 UI — nota:
-- [ ] 🛑 Fin Fase 6
+- [-] 6.1 Proveedor foto→3D — nota: omitido (Gabriela eligió pasar a la Fase 7; usaría Hugging Face con la misma cuota de ~1 uso/día).
+- [-] 6.2 Normalización — nota: omitido (Gabriela eligió pasar a la Fase 7; usaría Hugging Face con la misma cuota de ~1 uso/día).
+- [-] 6.3 UI — nota: omitido (Gabriela eligió pasar a la Fase 7; usaría Hugging Face con la misma cuota de ~1 uso/día).
+- [-] 🛑 Fin Fase 6 — omitido.
 
 ## Fase 7
-- [ ] 7.1 Release zip — nota: `scripts/crear_release.sh` + LEEME_PRIMERO.txt listos (v0.1.0 en el 🛑 de la Fase 2). Falta el job `release-smoke` de la CI (Fase 7).
+- [x] 7.1 Release zip — nota: `crear_release.sh` copia solo archivos del repo (git ls-files) + interfaz compilada; por defecto sin muebles de fotos de tiendas (`--con-fotos-de-tienda` los incluye). v0.2.0: 6.1 MB, 10 muebles CC0. Probado descomprimido en el Mac: instalar (~2 min con caché) → health, página, catálogo y análisis de foto OK. `instalar.command` ahora instala uv con el instalador oficial (sin Homebrew). CI: jobs `build-release` (Linux) + `release-smoke` (Windows limpio: instalar.bat instala uv y modelos, iniciar.bat, health, página y análisis de una foto) en workflow_dispatch.
 - [ ] 7.2 Demo en vivo temporal (opcional) — nota:
 
 ## Decisiones tomadas con Gabriela
@@ -76,6 +76,7 @@ Versión actual: 0.1.0 · Última actualización: 2026-09-28
 - 2026-09-29: "tamaño correcto, pero posiciones poco naturales y no se ve realista" → prioridad: ubicación natural (Fase 3) y realismo (Fase 4).
 - 2026-09-29: IA local solo para leer tablas de medidas; para ubicar muebles se usa la sugerencia básica (opción A).
 - 2026-09-29: nada de plantas/decoración en el recorrido desde la puerta de entrada; recortes 2D en ángulo se escalan al ancho real.
+- 2026-09-29: video: bastan los fotogramas; se omiten 5.2–5.3 y la Fase 6 → Fase 7.
 - 2026-09-29: retoque con IA (Hugging Face) descartado: cambia el cuarto y los muebles, y la cuota gratis da 1 imagen al día. Se sigue con el retoque clásico (opción A).
 
 ## Problemas abiertos

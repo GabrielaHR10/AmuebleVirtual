@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Abre el Estudio Virtual en http://localhost:8000
 cd "$(dirname "$0")/../.." || exit 1
+export PATH="$HOME/.local/bin:$PATH"  # donde queda uv si lo instaló instalar.command
 
 if ! command -v uv >/dev/null 2>&1; then
   echo "Falta 'uv'. Primero haz doble clic en scripts/mac/instalar.command"
