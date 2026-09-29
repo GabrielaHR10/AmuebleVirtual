@@ -46,7 +46,7 @@ Versión actual: 0.1.0 · Última actualización: 2026-09-28
 
 ## Fase 4
 - [x] 4.1 Retoque clásico — nota: `geometry/lighting.py` (al analizar: color/brillo medio del piso y posición de la zona más brillante = ventana, en el mundo del piso) + `three/lighting.ts` (ajuste automático al cargar la escena: luz ambiente con el tono del piso, exposición según el brillo, luz direccional desde la ventana → las sombras caen hacia la cámara); controles de dirección/altura/ambiente/exposición + botón "Ajuste automático de luz"; recortes con el tinte del cuarto, sombra de contacto doble y **proyectan sombra** (silueta con alphaTest); exportación con supermuestreo 2× (tope 4096 px).
-- [ ] 4.2 Proveedor IA — nota:
+- [ ] 4.2 Proveedor IA — nota: EN PAUSA (decisión de Gabriela). `Qwen/Qwen-Image-Edit-2511` pide 180 s de GPU (ZeroGPU lo cuenta como 360 s) → rechazado para cuenta gratis. Space oficial `Qwen/Qwen-Image-Edit` (120 s → 240 s) funciona: 55 s por imagen, pero **cambia todo el cuarto** (luz dorada, texto de letreros deformado, borra objetos, redibuja el sofá y mueve levemente la cámara). Mezclar solo alrededor de los muebles falla porque la geometría cambia de forma no rígida (ECC afín: bordes coinciden 9 % → 16 %). Cuota gratis: ~5 min/día = **1 retoque al día**. Evidencia en `entregas/fase4/`. `gradio_client` (Apache-2.0) agregado.
 - [ ] 4.3 UI — nota:
 - [ ] 🛑 Fin Fase 4
 

@@ -5,6 +5,7 @@ description = "Backend del Estudio Virtual — Santiago Muebles"
 requires-python = ">=3.12,<3.13"
 dependencies = [
     "fastapi>=0.141.1",
+    "gradio-client>=2.7.1",
     "moge>=2.0.0",
     "numpy>=2.5.3",
     "opencv-python-headless>=5.0.0.93",
