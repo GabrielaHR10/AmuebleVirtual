@@ -1,0 +1,27 @@
+{
+  "id": "ph-modern-wooden-cabinet",
+  "name": "Mueble bajo de madera (TV)",
+  "category": "tv_stand",
+  "dimensions_cm": {
+    "width": 244.0,
+    "depth": 52.0,
+    "height": 68.0
+  },
+  "extra_dimensions_cm": {},
+  "dimensions_source": "modelo_3d",
+  "dimensions_verified": true,
+  "monthly_price_cop": null,
+  "preferred_mode": "3d",
+  "glb_url": "/files/catalog/ph-modern-wooden-cabinet/model.glb",
+  "cutout_url": null,
+  "photo_url": null,
+  "thumb_url": null,
+  "yaw_offset_deg": 0.0,
+  "against_wall": true,
+  "source": "Poly Haven: https://polyhaven.com/a/modern_wooden_cabinet",
+  "license": "CC0",
+  "raw_table": null,
+  "main_photo": null,
+  "notes": [],
+  "user_created": false
+}

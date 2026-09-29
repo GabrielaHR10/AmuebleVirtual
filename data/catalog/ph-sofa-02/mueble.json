@@ -1,0 +1,27 @@
+{
+  "id": "ph-sofa-02",
+  "name": "Sofá tres puestos gris",
+  "category": "sofa",
+  "dimensions_cm": {
+    "width": 180.7,
+    "depth": 81.8,
+    "height": 70.9
+  },
+  "extra_dimensions_cm": {},
+  "dimensions_source": "modelo_3d",
+  "dimensions_verified": true,
+  "monthly_price_cop": null,
+  "preferred_mode": "3d",
+  "glb_url": "/files/catalog/ph-sofa-02/model.glb",
+  "cutout_url": null,
+  "photo_url": null,
+  "thumb_url": null,
+  "yaw_offset_deg": 0.0,
+  "against_wall": true,
+  "source": "Poly Haven: https://polyhaven.com/a/sofa_02",
+  "license": "CC0",
+  "raw_table": null,
+  "main_photo": null,
+  "notes": [],
+  "user_created": false
+}

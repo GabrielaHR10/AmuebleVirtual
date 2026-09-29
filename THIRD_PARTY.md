@@ -13,6 +13,19 @@ Cada modelo o asset que use el proyecto se registra aquí.
 | rembg | librería | https://github.com/danielgatis/rembg | MIT | Quitar el fondo a fotos de muebles |
 | BiRefNet (`birefnet-general-lite`) | pesos de modelo | https://github.com/ZhengPeng7/BiRefNet | MIT | Modelo de recorte principal |
 | IS-Net (`isnet-general-use`) | pesos de modelo | https://github.com/xuebinqin/DIS | Apache-2.0 | Modelo de recorte de respaldo |
+| Poly Haven `sofa_02` | modelo 3D | https://polyhaven.com/a/sofa_02 | CC0 | Catálogo semilla |
+| Poly Haven `sofa_03` | modelo 3D | https://polyhaven.com/a/sofa_03 | CC0 | Catálogo semilla |
+| Poly Haven `modern_arm_chair_01` | modelo 3D | https://polyhaven.com/a/modern_arm_chair_01 | CC0 | Catálogo semilla |
+| Poly Haven `mid_century_lounge_chair` | modelo 3D | https://polyhaven.com/a/mid_century_lounge_chair | CC0 | Catálogo semilla |
+| Poly Haven `modern_coffee_table_01` | modelo 3D | https://polyhaven.com/a/modern_coffee_table_01 | CC0 | Catálogo semilla |
+| Poly Haven `coffee_table_round_01` | modelo 3D | https://polyhaven.com/a/coffee_table_round_01 | CC0 | Catálogo semilla |
+| Poly Haven `round_wooden_table_01` | modelo 3D | https://polyhaven.com/a/round_wooden_table_01 | CC0 | Catálogo semilla |
+| Poly Haven `dining_chair_02` | modelo 3D | https://polyhaven.com/a/dining_chair_02 | CC0 | Catálogo semilla |
+| Poly Haven `modern_wooden_cabinet` | modelo 3D | https://polyhaven.com/a/modern_wooden_cabinet | CC0 | Catálogo semilla |
+| Poly Haven `wooden_display_shelves_01` | modelo 3D | https://polyhaven.com/a/wooden_display_shelves_01 | CC0 | Catálogo semilla |
+| Poly Haven `side_table_01` | modelo 3D | https://polyhaven.com/a/side_table_01 | CC0 | Catálogo semilla |
+| Poly Haven `potted_plant_02` | modelo 3D | https://polyhaven.com/a/potted_plant_02 | CC0 | Catálogo semilla |
+| glTF-Transform CLI | herramienta (solo al crear el catálogo) | https://gltf-transform.dev | MIT | Convertir/optimizar GLB |
 | onnxruntime | librería | https://github.com/microsoft/onnxruntime | MIT | Ejecuta los modelos de recorte |
 
 **No usado por licencia:** `pillow-heif` (el plan lo pedía para HEIC) — sus wheels traen x265 y quedan **GPLv2**.
