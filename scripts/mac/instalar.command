@@ -27,7 +27,8 @@ fi
 echo "→ Instalando Python y librerías (la primera vez puede tardar varios minutos)…"
 (cd backend && uv sync) || fail "No se pudieron instalar las librerías. Revisa tu conexión a internet y vuelve a intentar."
 
-# Precarga de modelos de IA: se agrega en la Fase 1 (uv run python -m app.prefetch)
+echo "→ Descargando modelos de IA…"
+(cd backend && uv run python -m app.prefetch) || fail "No se pudieron descargar los modelos. Revisa tu conexión y vuelve a intentar."
 
 # Si se clonó el repo (no el release), compilar la interfaz cuando falte
 if [ ! -f backend/app/static/index.html ] && [ -d frontend ]; then

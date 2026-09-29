@@ -28,9 +28,15 @@ if errorlevel 1 (
   pause
   exit /b 1
 )
+echo Descargando modelos de IA...
+uv run python -m app.prefetch
+if errorlevel 1 (
+  popd
+  echo ERROR: no se pudieron descargar los modelos. Revisa tu conexion y vuelve a intentar.
+  pause
+  exit /b 1
+)
 popd
-
-rem Precarga de modelos de IA: se agrega en la Fase 1 (uv run python -m app.prefetch)
 
 echo.
 echo Listo. Para abrir la app: doble clic en scripts\windows\iniciar.bat
