@@ -1,0 +1,109 @@
+import { useEffect, useRef, useState } from 'react'
+import { getScene, getScenes, uploadScene, type Scene } from '../api/client'
+import RoomEstimateCard from '../components/RoomEstimateCard'
+import { useStudio, type Toggles } from '../store/useStudio'
+import Editor3D from '../three/Editor3D'
+
+const TOGGLE_LABELS: [keyof Toggles, string][] = [
+  ['occlusion', 'Oclusión'],
+  ['grid', 'Cuadrícula 1 m'],
+  ['floorMask', 'Máscara de piso'],
+  ['shadows', 'Sombras'],
+]
+
+function UploadBar({ onScene }: { onScene: (s: Scene) => void }) {
+  const input = useRef<HTMLInputElement>(null)
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [scenes, setScenes] = useState<Scene[]>([])
+  const current = useStudio((s) => s.scene)
+
+  useEffect(() => {
+    getScenes().then(setScenes).catch(() => setScenes([]))
+  }, [current?.id])
+
+  async function upload(file: File) {
+    setBusy(true)
+    setError(null)
+    try {
+      onScene(await uploadScene(file))
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e))
+    } finally {
+      setBusy(false)
+      if (input.current) input.current.value = ''
+    }
+  }
+
+  return (
+    <div className="flex flex-wrap items-center gap-3 border-b border-stone-200 bg-white px-4 py-2 text-sm">
+      <input
+        ref={input}
+        data-testid="upload-input"
+        type="file"
+        accept="image/jpeg,image/png"
+        className="hidden"
+        onChange={(e) => e.target.files?.[0] && upload(e.target.files[0])}
+      />
+      <button
+        onClick={() => input.current?.click()}
+        disabled={busy}
+        className="rounded bg-stone-800 px-3 py-1.5 font-medium text-white disabled:opacity-60"
+      >
+        {busy ? 'Analizando la foto… (~10–30 s)' : 'Subir foto'}
+      </button>
+      <label className="flex items-center gap-2">
+        Escenas anteriores
+        <select
+          data-testid="scene-select"
+          className="max-w-64 rounded border border-stone-300 px-2 py-1"
+          value={current?.id ?? ''}
+          onChange={(e) => e.target.value && getScene(e.target.value).then(onScene)}
+        >
+          <option value="">—</option>
+          {scenes.map((s) => (
+            <option key={s.id} value={s.id}>
+              {s.created_at?.slice(0, 16).replace('T', ' ') ?? s.id}
+            </option>
+          ))}
+        </select>
+      </label>
+      {error && <span className="rounded bg-red-50 px-2 py-1 text-red-700">{error}</span>}
+    </div>
+  )
+}
+
+export default function PhotoStudio() {
+  const { scene, setScene, toggles, toggle } = useStudio()
+
+  return (
+    <div className="flex h-full flex-col">
+      <UploadBar onScene={setScene} />
+      <div className="flex min-h-0 flex-1">
+        <div className="min-w-0 flex-1">
+          {scene ? (
+            <Editor3D scene={scene} toggles={toggles} />
+          ) : (
+            <div className="flex h-full items-center justify-center text-stone-500">
+              Sube una foto del espacio (idealmente vacío) para empezar.
+            </div>
+          )}
+        </div>
+        {scene && (
+          <aside className="w-72 space-y-3 overflow-y-auto border-l border-stone-200 bg-stone-50 p-3">
+            <section className="rounded-lg border border-stone-200 bg-white p-3 text-sm">
+              <h3 className="mb-1 font-semibold">Vista</h3>
+              {TOGGLE_LABELS.map(([key, label]) => (
+                <label key={key} className="flex items-center gap-2 py-0.5">
+                  <input type="checkbox" checked={toggles[key]} onChange={() => toggle(key)} />
+                  {label}
+                </label>
+              ))}
+            </section>
+            <RoomEstimateCard scene={scene} />
+          </aside>
+        )}
+      </div>
+    </div>
+  )
+}

@@ -83,3 +83,64 @@ export async function createCatalogItem(form: FormData): Promise<CatalogItem> {
 export async function deleteCatalogItem(id: string): Promise<void> {
   await parse<{ ok: boolean }>(await fetch(`/api/catalog/${encodeURIComponent(id)}`, { method: 'DELETE' }))
 }
+
+// ---------- Escenas (PLAN §5.1) ----------
+
+export interface RoomEstimate {
+  visible_floor_area_m2: number | null
+  floor_extent_m: { width: number; depth: number } | null
+  ceiling_height_m: number | null
+  confidence: 'alta' | 'media' | 'baja'
+  method: string
+}
+
+export interface Placement {
+  uid: string
+  item_id: string
+  mode: '3d' | 'cutout'
+  x: number
+  z: number
+  yaw_deg: number
+  source: 'manual' | 'heuristic' | 'vlm'
+}
+
+export interface Scene {
+  id: string
+  kind: 'photo'
+  image: { url: string; width: number; height: number }
+  camera: { fov_y_deg: number; intrinsics_norm: number[][]; matrix_world: number[] }
+  floor: { found: boolean; normal: number[] | null; d: number | null; inlier_ratio: number; frame: number[] | null }
+  camera_height_m: number | null
+  scale_k: number
+  room_estimate: RoomEstimate | null
+  warnings: string[]
+  assets: Record<string, string>
+  placements: Placement[]
+  model: string
+  timings_ms: Record<string, number>
+  created_at: string | null
+}
+
+export async function uploadScene(file: File): Promise<Scene> {
+  const form = new FormData()
+  form.append('file', file)
+  return parse<Scene>(await fetch('/api/scenes', { method: 'POST', body: form }))
+}
+
+export async function getScenes(): Promise<Scene[]> {
+  return parse<Scene[]>(await fetch('/api/scenes'))
+}
+
+export async function getScene(id: string): Promise<Scene> {
+  return parse<Scene>(await fetch(`/api/scenes/${encodeURIComponent(id)}`))
+}
+
+export async function savePlacements(id: string, placements: Placement[], scaleK: number): Promise<Scene> {
+  return parse<Scene>(
+    await fetch(`/api/scenes/${encodeURIComponent(id)}/placements`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ placements, scale_k: scaleK }),
+    }),
+  )
+}

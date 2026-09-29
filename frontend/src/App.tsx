@@ -1,8 +1,7 @@
-import { useEffect, useRef, useState } from 'react'
-import { Canvas, useFrame } from '@react-three/fiber'
-import type { Mesh } from 'three'
+import { useEffect, useState } from 'react'
 import { describeHealth, getHealth } from './api/client'
 import CatalogAdmin from './pages/CatalogAdmin'
+import PhotoStudio from './pages/PhotoStudio'
 
 type Status = { state: 'loading' } | { state: 'ok'; text: string } | { state: 'error'; text: string }
 
@@ -30,22 +29,6 @@ function HealthBadge() {
       <span className={`h-2.5 w-2.5 rounded-full ${color}`} />
       {text}
     </span>
-  )
-}
-
-function SpinningCube() {
-  const ref = useRef<Mesh>(null)
-  useFrame((_, dt) => {
-    if (ref.current) {
-      ref.current.rotation.x += dt * 0.4
-      ref.current.rotation.y += dt * 0.6
-    }
-  })
-  return (
-    <mesh ref={ref}>
-      <boxGeometry args={[1.4, 1.4, 1.4]} />
-      <meshStandardMaterial color="#b0825a" />
-    </mesh>
   )
 }
 
@@ -91,16 +74,8 @@ export default function App() {
         </div>
         <HealthBadge />
       </header>
-      <main className="min-h-0 flex-1 overflow-auto">
-        {page === 'catalog' ? (
-          <CatalogAdmin />
-        ) : (
-          <Canvas camera={{ position: [0, 0, 4], fov: 50 }} gl={{ preserveDrawingBuffer: true }}>
-            <ambientLight intensity={0.6} />
-            <directionalLight position={[3, 4, 2]} intensity={1.2} />
-            <SpinningCube />
-          </Canvas>
-        )}
+      <main className={`min-h-0 flex-1 ${page === 'catalog' ? 'overflow-auto' : 'overflow-hidden'}`}>
+        {page === 'catalog' ? <CatalogAdmin /> : <PhotoStudio />}
       </main>
     </div>
   )
