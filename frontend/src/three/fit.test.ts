@@ -1,7 +1,7 @@
 import { Matrix4, Vector3 } from 'three'
 import { describe, expect, it } from 'vitest'
 import type { CatalogItem, Placement } from '../api/client'
-import { fitStatus, type FitContext, type MaskData } from './fit'
+import { findFreeSpot, fitStatus, type FitContext, type MaskData } from './fit'
 import { floorFrameFromPlane } from './math'
 
 const K = [
@@ -42,5 +42,16 @@ describe('fitStatus', () => {
     expect(fitStatus(at('a', 'sofa', 0, -2.5), sofa, [other], ctx).message).toBe('Se cruza con Sofá')
     const onRug = { p: at('c', 'rug', 0, -2.5), item: rug }
     expect(fitStatus(at('a', 'sofa', 0, -2.5), sofa, [onRug], ctx).ok).toBe(true)
+  })
+})
+
+describe('findFreeSpot', () => {
+  it('corre el mueble nuevo para que no se cruce con uno existente', () => {
+    const other = { p: at('b', 'sofa', 0, -2.5), item: sofa }
+    const [x, z] = findFreeSpot(0, -2.5, sofa, [other], ctx)
+    expect(fitStatus(at('a', 'sofa', x, z), sofa, [other], ctx).ok).toBe(true)
+  })
+  it('si el lugar ya está libre, no lo mueve', () => {
+    expect(findFreeSpot(0, -2.5, sofa, [], ctx)).toEqual([0, -2.5])
   })
 })

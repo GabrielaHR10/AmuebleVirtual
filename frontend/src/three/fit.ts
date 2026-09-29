@@ -81,3 +81,32 @@ export function fitStatus(
   }
   return { ok: true, message: null }
 }
+
+/**
+ * Primer lugar libre en espiral alrededor de (x0, z0) donde el mueble cabe sin cruzarse con otros.
+ * Si no hay ninguno dentro del piso visible, busca al menos uno sin cruces; si tampoco, el punto inicial.
+ */
+export function findFreeSpot(
+  x0: number,
+  z0: number,
+  item: CatalogItem,
+  others: { p: Placement; item: CatalogItem }[],
+  ctx: FitContext,
+): [number, number] {
+  const probe = (x: number, z: number): Placement => ({
+    uid: '__probe__', item_id: item.id, mode: 'cutout', x, z, yaw_deg: 0, source: 'manual',
+  })
+  const step = 0.3
+  for (const c of [ctx, { ...ctx, mask: null }]) {
+    for (let ring = 0; ring <= 10; ring++) {
+      const n = ring === 0 ? 1 : ring * 8
+      for (let i = 0; i < n; i++) {
+        const a = (i / n) * Math.PI * 2
+        const x = x0 + Math.cos(a) * ring * step
+        const z = z0 + Math.sin(a) * ring * step
+        if (fitStatus(probe(x, z), item, others, c).ok) return [x, z]
+      }
+    }
+  }
+  return [x0, z0]
+}

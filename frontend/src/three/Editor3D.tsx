@@ -23,6 +23,16 @@ function SceneCamera({ scene }: { scene: Scene }) {
   return null
 }
 
+/** Exposición de los muebles 3D (los recortes la aplican en su material). */
+function Exposure() {
+  const gl = useThree((s) => s.gl)
+  const exposure = useStudio((s) => s.exposure)
+  useLayoutEffect(() => {
+    gl.toneMappingExposure = exposure
+  }, [gl, exposure])
+  return null
+}
+
 /** Luces del grupo del piso: la direccional apunta al centro del piso visible. */
 function FloorLights({ target }: { target: [number, number, number] }) {
   const light = useRef<DirectionalLight>(null)
@@ -134,6 +144,7 @@ export default function Editor3D({ scene, toggles, children, onFloorPointerMisse
           >
             <SceneCamera scene={scene} />
             <ExportBridge />
+            <Exposure />
             <ManualFloorMarks />
             <Suspense fallback={null}>
               <Environment files="/hdri/room_1k.hdr" environmentIntensity={0.6} background={false} />

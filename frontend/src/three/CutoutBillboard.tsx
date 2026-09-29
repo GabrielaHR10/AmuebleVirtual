@@ -4,6 +4,7 @@ import { useTexture } from '@react-three/drei'
 import { CanvasTexture, DoubleSide, SRGBColorSpace, Vector3, type Mesh } from 'three'
 import type { CatalogItem } from '../api/client'
 import { billboardSize } from '../catalog'
+import { useStudio } from '../store/useStudio'
 
 let contactTexture: CanvasTexture | null = null
 
@@ -34,6 +35,8 @@ export default function CutoutBillboard({ item, scaleK }: { item: CatalogItem; s
   const texture = useTexture(item.cutout_url!)
   texture.colorSpace = SRGBColorSpace
   const plane = useRef<Mesh>(null)
+  const exposure = useStudio((s) => s.exposure)
+  const shadowOpacity = useStudio((s) => s.shadowOpacity)
   const size = useMemo(() => billboardSize(item), [item])
   const w = size.width * scaleK
   const h = size.height * scaleK
@@ -56,11 +59,24 @@ export default function CutoutBillboard({ item, scaleK }: { item: CatalogItem; s
     <>
       <mesh ref={plane} position-y={h / 2} renderOrder={2}>
         <planeGeometry args={[w, h]} />
-        <meshBasicMaterial map={texture} transparent alphaTest={0.5} side={DoubleSide} toneMapped={false} />
+        <meshBasicMaterial
+          map={texture}
+          color={[exposure, exposure, exposure]}
+          transparent
+          alphaTest={0.5}
+          side={DoubleSide}
+          toneMapped={false}
+        />
       </mesh>
       <mesh rotation-x={-Math.PI / 2} position-y={0.002} renderOrder={1} userData={{ noMask: true }}>
         <planeGeometry args={[footW * 1.1, footD * 1.1]} />
-        <meshBasicMaterial map={getContactTexture()} transparent opacity={0.45} depthWrite={false} toneMapped={false} />
+        <meshBasicMaterial
+          map={getContactTexture()}
+          transparent
+          opacity={Math.min(1, shadowOpacity * 1.5)}
+          depthWrite={false}
+          toneMapped={false}
+        />
       </mesh>
     </>
   )

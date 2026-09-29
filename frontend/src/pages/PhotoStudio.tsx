@@ -5,6 +5,7 @@ import CatalogPanel from '../components/CatalogPanel'
 import ManualFloorPanel from '../components/ManualFloorPanel'
 import RoomEstimateCard from '../components/RoomEstimateCard'
 import SelectedPanel from '../components/SelectedPanel'
+import Toasts from '../components/Toasts'
 import { useEditorKeys } from '../hooks/useEditorKeys'
 import { useStudio, type Toggles } from '../store/useStudio'
 import Editor3D from '../three/Editor3D'
@@ -21,7 +22,7 @@ const TOGGLE_LABELS: [keyof Toggles, string][] = [
 function UploadBar({ onScene }: { onScene: (s: Scene) => void }) {
   const input = useRef<HTMLInputElement>(null)
   const [busy, setBusy] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const pushToast = useStudio((s) => s.pushToast)
   const [scenes, setScenes] = useState<Scene[]>([])
   const current = useStudio((s) => s.scene)
 
@@ -31,11 +32,10 @@ function UploadBar({ onScene }: { onScene: (s: Scene) => void }) {
 
   async function upload(file: File) {
     setBusy(true)
-    setError(null)
     try {
       onScene(await uploadScene(file))
     } catch (e) {
-      setError(e instanceof Error ? e.message : String(e))
+      pushToast(e instanceof Error ? e.message : String(e))
     } finally {
       setBusy(false)
       if (input.current) input.current.value = ''
@@ -65,7 +65,12 @@ function UploadBar({ onScene }: { onScene: (s: Scene) => void }) {
           data-testid="scene-select"
           className="max-w-64 rounded border border-stone-300 px-2 py-1"
           value={current?.id ?? ''}
-          onChange={(e) => e.target.value && getScene(e.target.value).then(onScene)}
+          onChange={(e) =>
+            e.target.value &&
+            getScene(e.target.value)
+              .then(onScene)
+              .catch((err: unknown) => pushToast(err instanceof Error ? err.message : String(err)))
+          }
         >
           <option value="">—</option>
           {scenes.map((s) => (
@@ -76,7 +81,6 @@ function UploadBar({ onScene }: { onScene: (s: Scene) => void }) {
         </select>
       </label>
       {current && <ExportButtons />}
-      {error && <span className="rounded bg-red-50 px-2 py-1 text-red-700">{error}</span>}
     </div>
   )
 }
@@ -84,21 +88,20 @@ function UploadBar({ onScene }: { onScene: (s: Scene) => void }) {
 function ExportButtons() {
   const scene = useStudio((s) => s.scene)
   const select = useStudio((s) => s.select)
+  const pushToast = useStudio((s) => s.pushToast)
   const [busy, setBusy] = useState(false)
-  const [error, setError] = useState<string | null>(null)
   if (!scene) return null
   const { url, width, height } = scene.image
 
   async function run(kind: 'png' | 'mask') {
     setBusy(true)
-    setError(null)
     select(null) // sin selección: no se exportan contornos ni etiquetas
     try {
       await new Promise((r) => requestAnimationFrame(() => r(null)))
       const blob = kind === 'png' ? await exportComposite(url, width, height) : await exportFurnitureMask(width, height)
       downloadBlob(blob, exportFileName(kind === 'png' ? 'amoblado' : 'mascara_muebles'))
     } catch (e) {
-      setError(e instanceof Error ? e.message : String(e))
+      pushToast(`No se pudo exportar: ${e instanceof Error ? e.message : String(e)}`)
     } finally {
       setBusy(false)
     }
@@ -121,7 +124,38 @@ function ExportButtons() {
       >
         {busy ? 'Exportando…' : 'Exportar PNG'}
       </button>
-      {error && <span className="rounded bg-red-50 px-2 py-1 text-red-700">{error}</span>}
+    </div>
+  )
+}
+
+function ViewSliders() {
+  const { shadowOpacity, exposure, setView } = useStudio()
+  return (
+    <div className="mt-2 space-y-1 text-xs">
+      <label className="block">
+        Intensidad de sombra: {Math.round(shadowOpacity * 100)} %
+        <input
+          type="range"
+          min={0}
+          max={0.8}
+          step={0.05}
+          value={shadowOpacity}
+          onChange={(e) => setView({ shadowOpacity: Number(e.target.value) })}
+          className="w-full"
+        />
+      </label>
+      <label className="block">
+        Exposición de muebles: {exposure.toFixed(2)}
+        <input
+          type="range"
+          min={0.5}
+          max={1.5}
+          step={0.05}
+          value={exposure}
+          onChange={(e) => setView({ exposure: Number(e.target.value) })}
+          className="w-full"
+        />
+      </label>
     </div>
   )
 }
@@ -137,7 +171,10 @@ function useAutosave() {
       setStatus('saving')
       savePlacements(scene.id, placements, scaleK)
         .then(() => setStatus('saved'))
-        .catch(() => setStatus('error'))
+        .catch((e: unknown) => {
+          setStatus('error')
+          useStudio.getState().pushToast(`No se pudieron guardar los cambios: ${e instanceof Error ? e.message : e}`)
+        })
     }, 1000)
     return () => clearTimeout(t)
   }, [scene, placements, scaleK])
@@ -155,6 +192,7 @@ export default function PhotoStudio() {
 
   return (
     <div className="flex h-full flex-col">
+      <Toasts />
       <UploadBar onScene={setScene} />
       <div className="flex min-h-0 flex-1">
         {scene && <CatalogPanel />}
@@ -184,6 +222,7 @@ export default function PhotoStudio() {
                   {label}
                 </label>
               ))}
+              <ViewSliders />
             </section>
             <CalibrationPanel />
             <RoomEstimateCard scene={scene} />

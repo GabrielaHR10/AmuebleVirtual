@@ -5,6 +5,12 @@ import { useStudio } from '../store/useStudio'
 import { fitStatus, type FitResult, type MaskData } from './fit'
 
 const maskCache = new Map<string, Promise<MaskData>>()
+const loadedMasks = new Map<string, MaskData>()
+
+/** Máscara ya cargada (o null si todavía no), para usarla fuera de React. */
+export function getLoadedMask(url: string | undefined): MaskData | null {
+  return (url && loadedMasks.get(url)) || null
+}
 
 function loadMask(url: string): Promise<MaskData> {
   let p = maskCache.get(url)
@@ -17,7 +23,9 @@ function loadMask(url: string): Promise<MaskData> {
         c.height = img.naturalHeight
         const g = c.getContext('2d', { willReadFrequently: true })!
         g.drawImage(img, 0, 0)
-        resolve({ width: c.width, height: c.height, data: g.getImageData(0, 0, c.width, c.height).data })
+        const data = { width: c.width, height: c.height, data: g.getImageData(0, 0, c.width, c.height).data }
+        loadedMasks.set(url, data)
+        resolve(data)
       }
       img.onerror = () => reject(new Error('No se pudo cargar la máscara del piso'))
       img.src = url

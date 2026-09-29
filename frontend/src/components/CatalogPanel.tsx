@@ -3,16 +3,27 @@ import { Matrix4 } from 'three'
 import type { CatalogItem, Category } from '../api/client'
 import { CATEGORY_LABELS, formatDims, thumbOf } from '../catalog'
 import { addPlacement, useStudio } from '../store/useStudio'
+import { findFreeSpot } from '../three/fit'
 import { dropPoint } from '../three/math'
+import { getLoadedMask } from '../three/useFits'
 
-/** Clic en un mueble → se agrega en el piso bajo el centro de la imagen (PLAN 2.7). */
+/**
+ * Clic en un mueble → se agrega en el piso bajo el centro de la imagen (PLAN 2.7); si ahí no cabe
+ * o se cruza con otro, en el lugar libre más cercano.
+ */
 function addToScene(item: CatalogItem) {
-  const { scene, placements } = useStudio.getState()
+  const { scene, placements, catalog, scaleK } = useStudio.getState()
   if (!scene?.floor.frame) return
-  const p = dropPoint(new Matrix4().fromArray(scene.floor.frame), new Matrix4().fromArray(scene.camera.matrix_world))
-  // si ya hay muebles, correr un poco cada nuevo para que no queden exactamente encima
-  const shift = (placements.length % 5) * 0.25
-  addPlacement(item, p.x + shift, p.z)
+  const frame = new Matrix4().fromArray(scene.floor.frame)
+  const cameraWorld = new Matrix4().fromArray(scene.camera.matrix_world)
+  const p = dropPoint(frame, cameraWorld)
+  const byId = new Map(catalog.map((i) => [i.id, i]))
+  const others = placements.flatMap((o) => (byId.has(o.item_id) ? [{ p: o, item: byId.get(o.item_id)! }] : []))
+  const mask = scene.warnings.includes('piso_manual') ? null : getLoadedMask(scene.assets.floor_mask_png)
+  const [x, z] = findFreeSpot(p.x, p.z, item, others, {
+    mask, frame, cameraWorld, intrinsics: scene.camera.intrinsics_norm, scaleK,
+  })
+  addPlacement(item, x, z)
 }
 
 export default function CatalogPanel() {

@@ -37,6 +37,14 @@ interface StudioState {
   /** Piso manual (PLAN 2.9): puntos 3D (coords de cámara) marcados sobre la foto. */
   manualFloor: { active: boolean; points: [number, number, number][] }
   setManualFloor: (m: { active: boolean; points: [number, number, number][] }) => void
+  /** Ajustes de vista (PLAN 2.11). */
+  shadowOpacity: number
+  exposure: number
+  setView: (v: { shadowOpacity?: number; exposure?: number }) => void
+  /** Avisos flotantes (errores del servidor en español). */
+  toasts: { id: number; text: string }[]
+  pushToast: (text: string) => void
+  dismissToast: (id: number) => void
   /** Avisos de los modelos 3D (alto del GLB ≠ ficha), por item_id. */
   modelWarnings: Record<string, string | null>
   setModelWarning: (itemId: string, warning: string | null) => void
@@ -115,6 +123,16 @@ export const useStudio = create<StudioState>((set) => ({
   setCalibration: (calibration) => set({ calibration }),
   manualFloor: { active: false, points: [] },
   setManualFloor: (manualFloor) => set({ manualFloor }),
+  shadowOpacity: 0.3,
+  exposure: 1,
+  setView: (v) => set(v),
+  toasts: [],
+  pushToast: (text) => {
+    const id = Date.now() + Math.random()
+    set((s) => ({ toasts: [...s.toasts.filter((t) => t.text !== text), { id, text }] }))
+    setTimeout(() => useStudio.getState().dismissToast(id), 6000)
+  },
+  dismissToast: (id) => set((s) => ({ toasts: s.toasts.filter((t) => t.id !== id) })),
   modelWarnings: {},
   setModelWarning: (itemId, warning) =>
     set((s) => (s.modelWarnings[itemId] === warning ? {} : { modelWarnings: { ...s.modelWarnings, [itemId]: warning } })),
