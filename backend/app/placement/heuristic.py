@@ -13,14 +13,18 @@ from app.placement.geometry2d import (
     facing_camera,
     is_valid,
     local_wall_normals,
+    project,
     visibility,
 )
 
-FACE_CAMERA = {"sofa", "bed", "armchair", "desk"}
+FACE_CAMERA = {"sofa", "bed", "desk"}
 SIDE_WALL = {"shelf", "wardrobe"}
 CENTER = {"rug", "coffee_table", "dining_table"}
 DECOR = {"lamp", "plant"}
 COFFEE_GAP_M = 0.45
+ARMCHAIR_GAP_M = 0.35
+PHASE = {"coffee_table": 1, "tv_stand": 1, "armchair": 2, "chair": 2, "nightstand": 2, "lamp": 3, "plant": 3}
+OCCLUSION_PENALTY = 0.25
 TOP_K = 8
 
 
@@ -131,6 +135,22 @@ class Planner:
                             f"{it.name}: junto a la mesa"))
         return out
 
+    def beside_coffee_table(self, it: Item) -> list[tuple[Box, str]]:
+        """Sillón al costado de la mesa de centro, mirándola (la típica "L" con el sofá)."""
+        out = []
+        for host, kind in zip(self.placed, self.kinds, strict=True):
+            if kind != "coffee_table":
+                continue
+            for side in (1, -1):
+                for fwd in (0.0, 0.2, -0.2):
+                    c = (np.array([host.x, host.z]) + host.right() * side * (host.w / 2 + ARMCHAIR_GAP_M + it.d / 2)
+                         + host.front() * fwd)
+                    to = np.array([host.x, host.z]) - c
+                    yaw = float(np.degrees(np.arctan2(to[0], to[1]))) % 360
+                    out.append((Box(float(c[0]), float(c[1]), yaw, it.w, it.d, it.h),
+                                f"{it.name}: al costado de la mesa de centro, mirándola"))
+        return out
+
     def beside_sofa(self, it: Item) -> list[tuple[Box, str]]:
         out = []
         for host, kind in zip(self.placed, self.kinds, strict=True):
@@ -156,13 +176,43 @@ class Planner:
                 return (1 + float(box.front() @ (to / max(np.linalg.norm(to), 1e-6)))) / 2
             return 1 - abs(facing_camera(box))
         if cat in DECOR:
-            return 1.0 if "esquina" in note or "sofá" in note else 0.6
+            return 1.0 if "esquina" in note else 0.85 if "sofá" in note else 0.4
+        if cat == "armchair":
+            return 1.0 if "mesa de centro" in note else 0.8 if "sofá" in note else 0.4
         if cat == "coffee_table":
             return 1.0 if "sofá" in note else 0.5
         return 0.6
 
     def score(self, it: Item, box: Box, note: str) -> float:
-        return 0.4 * visibility(box, self.frame, self.intr) + 0.3 * distance_score(box) + 0.3 * self.rule_score(it, box, note)
+        base = 0.4 * visibility(box, self.frame, self.intr) + 0.3 * distance_score(box) + 0.3 * self.rule_score(it, box, note)
+        return base - self.occlusion_penalty(box)
+
+    def _image_rect(self, box: Box) -> np.ndarray | None:
+        c = box.corners()
+        pts = np.vstack([np.column_stack([c[:, 0], np.zeros(4), c[:, 1]]),
+                         np.column_stack([c[:, 0], np.full(4, box.h), c[:, 1]])])
+        uv = project(pts, self.frame, self.intr)
+        if not np.isfinite(uv).all():
+            return None
+        return np.array([uv[:, 0].min(), uv[:, 1].min(), uv[:, 0].max(), uv[:, 1].max()])
+
+    def occlusion_penalty(self, box: Box) -> float:
+        """Castigo si, visto desde la cámara, el candidato tapa un mueble ya ubicado (queda delante de él)."""
+        mine = self._image_rect(box)
+        if mine is None:
+            return 0.0
+        dist = np.hypot(box.x, box.z)
+        pen = 0.0
+        for other in self.placed:
+            r = self._image_rect(other)
+            if r is None or np.hypot(other.x, other.z) <= dist:
+                continue
+            ix = max(0.0, min(mine[2], r[2]) - max(mine[0], r[0]))
+            iy = max(0.0, min(mine[3], r[3]) - max(mine[1], r[1]))
+            area = max((r[2] - r[0]) * (r[3] - r[1]), 1e-9)
+            if ix * iy / area > 0.25:
+                pen += OCCLUSION_PENALTY
+        return min(pen, 2 * OCCLUSION_PENALTY)
 
     # ---------- plan ----------
 
@@ -174,6 +224,8 @@ class Planner:
             return self.free_region_candidates(it)
         if cat == "chair":
             return self.around_table(it) + self.wall_candidates(it)
+        if cat == "armchair":
+            return self.beside_coffee_table(it) + self.beside_sofa(it) + self.wall_candidates(it)
         if cat in DECOR:
             corners = [(b, n.replace("contra", "en la esquina de")) for b, n in self.wall_candidates(it)
                        if self._is_corner(b)]
@@ -214,9 +266,8 @@ class Planner:
 def suggest(grid: Occupancy, items: list[Item], frame: np.ndarray, intrinsics: np.ndarray,
             existing: list[Box] | None = None) -> Result:
     planner = Planner(grid, frame, intrinsics, existing or [])
-    order = sorted(range(len(items)), key=lambda i: -(items[i].w * items[i].d))
-    # la mesa de centro y la decoración después del sofá, aunque sean grandes
-    order.sort(key=lambda i: items[i].category in ("coffee_table", "chair", "nightstand", *DECOR))
+    # primero lo grande contra la pared, después lo que se ubica respecto a eso (mesa → sillón → decoración)
+    order = sorted(range(len(items)), key=lambda i: (PHASE.get(items[i].category, 0), -(items[i].w * items[i].d)))
     result = Result()
     for i in order:
         it = items[i]

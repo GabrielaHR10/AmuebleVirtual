@@ -45,3 +45,20 @@ def test_reports_when_nothing_fits():
     huge = Item("gigante", "Mueble gigante", "wardrobe", 6.0, 1.0, 2.0, True)
     res = suggest(grid, [huge], frame, intr)
     assert res.placements == [] and "No encontré" in res.notes[0]
+
+
+def test_armchair_beside_coffee_table_not_in_front_of_sofa():
+    grid, frame = _grid()
+    fy = 0.5 / np.tan(np.radians(70) / 2)
+    intr = np.array([[fy * 360 / 270, 0, 0.5], [0, fy, 0.5], [0, 0, 1]])
+    armchair = Item("sillon", "Sillón", "armchair", 0.8, 0.8, 0.9, False)
+    res = suggest(grid, [armchair, SOFA, COFFEE], frame, intr)
+    placed = {it.item_id: box for it, box in res.placements}
+    assert set(placed) == {"sofa", "mesa", "sillon"}, res.notes
+    mesa, sillon = placed["mesa"], placed["sillon"]
+    # al costado de la mesa (sobre su eje "derecha"), no delante de ella
+    rel = np.array([sillon.x - mesa.x, sillon.z - mesa.z])
+    assert abs(rel @ mesa.right()) > mesa.w / 2
+    # y mirando hacia la mesa
+    assert sillon.front() @ (-rel / np.linalg.norm(rel)) > 0.8
+    assert any("costado de la mesa" in n for n in res.notes)
