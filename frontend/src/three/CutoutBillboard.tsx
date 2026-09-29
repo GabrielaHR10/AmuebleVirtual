@@ -58,7 +58,7 @@ export default function CutoutBillboard({ item, scaleK }: { item: CatalogItem; s
         <planeGeometry args={[w, h]} />
         <meshBasicMaterial map={texture} transparent alphaTest={0.5} side={DoubleSide} toneMapped={false} />
       </mesh>
-      <mesh rotation-x={-Math.PI / 2} position-y={0.002} renderOrder={1}>
+      <mesh rotation-x={-Math.PI / 2} position-y={0.002} renderOrder={1} userData={{ noMask: true }}>
         <planeGeometry args={[footW * 1.1, footD * 1.1]} />
         <meshBasicMaterial map={getContactTexture()} transparent opacity={0.45} depthWrite={false} toneMapped={false} />
       </mesh>

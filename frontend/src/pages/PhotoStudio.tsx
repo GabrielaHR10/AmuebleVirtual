@@ -8,6 +8,7 @@ import SelectedPanel from '../components/SelectedPanel'
 import { useEditorKeys } from '../hooks/useEditorKeys'
 import { useStudio, type Toggles } from '../store/useStudio'
 import Editor3D from '../three/Editor3D'
+import { downloadBlob, exportComposite, exportFileName, exportFurnitureMask } from '../three/exportImage'
 import FurnitureLayer from '../three/FurnitureLayer'
 
 const TOGGLE_LABELS: [keyof Toggles, string][] = [
@@ -74,6 +75,52 @@ function UploadBar({ onScene }: { onScene: (s: Scene) => void }) {
           ))}
         </select>
       </label>
+      {current && <ExportButtons />}
+      {error && <span className="rounded bg-red-50 px-2 py-1 text-red-700">{error}</span>}
+    </div>
+  )
+}
+
+function ExportButtons() {
+  const scene = useStudio((s) => s.scene)
+  const select = useStudio((s) => s.select)
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  if (!scene) return null
+  const { url, width, height } = scene.image
+
+  async function run(kind: 'png' | 'mask') {
+    setBusy(true)
+    setError(null)
+    select(null) // sin selección: no se exportan contornos ni etiquetas
+    try {
+      await new Promise((r) => requestAnimationFrame(() => r(null)))
+      const blob = kind === 'png' ? await exportComposite(url, width, height) : await exportFurnitureMask(width, height)
+      downloadBlob(blob, exportFileName(kind === 'png' ? 'amoblado' : 'mascara_muebles'))
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e))
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  return (
+    <div className="ml-auto flex items-center gap-2">
+      <button
+        onClick={() => run('mask')}
+        disabled={busy}
+        className="rounded px-2 py-1.5 text-xs text-stone-500 underline disabled:opacity-60"
+        title="Blanco sobre negro, para el retoque con IA"
+      >
+        Máscara de muebles
+      </button>
+      <button
+        onClick={() => run('png')}
+        disabled={busy}
+        className="rounded bg-emerald-700 px-3 py-1.5 font-medium text-white disabled:opacity-60"
+      >
+        {busy ? 'Exportando…' : 'Exportar PNG'}
+      </button>
       {error && <span className="rounded bg-red-50 px-2 py-1 text-red-700">{error}</span>}
     </div>
   )

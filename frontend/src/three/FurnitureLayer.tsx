@@ -6,6 +6,7 @@ import type { CatalogItem, Placement } from '../api/client'
 import { billboardSize, formatDims } from '../catalog'
 import { useStudio } from '../store/useStudio'
 import CutoutBillboard from './CutoutBillboard'
+import { HelperGroup, markHelper } from './exportImage'
 import type { FitResult } from './fit'
 import FurnitureModel, { type ModelFit } from './FurnitureModel'
 import { useFits } from './useFits'
@@ -37,7 +38,7 @@ function CalibrationMarks() {
   const pts = points.map(([x, z]) => [x, y, z] as [number, number, number])
   const dist = points.length === 2 ? Math.hypot(points[1][0] - points[0][0], points[1][1] - points[0][1]) : null
   return (
-    <>
+    <HelperGroup>
       {pts.map((p, i) => (
         <mesh key={i} position={p} renderOrder={4}>
           <sphereGeometry args={[0.04, 16, 16]} />
@@ -54,7 +55,7 @@ function CalibrationMarks() {
           </Html>
         </>
       )}
-    </>
+    </HelperGroup>
   )
 }
 
@@ -67,7 +68,9 @@ function Footprint({ w, d, ok }: { w: number; d: number; ok: boolean }) {
     [-w / 2, y, d / 2],
     [-w / 2, y, -d / 2],
   ]
-  return <Line points={pts} color={ok ? '#22c55e' : '#ef4444'} lineWidth={2.5} depthTest={false} renderOrder={3} />
+  return (
+    <Line ref={markHelper} points={pts} color={ok ? '#22c55e' : '#ef4444'} lineWidth={2.5} depthTest={false} renderOrder={3} />
+  )
 }
 
 interface PlacedProps {
@@ -87,7 +90,12 @@ function Placed({ p, item, selected, fit, scaleK, onDown }: PlacedProps) {
   const labelY = p.mode === 'cutout' ? billboardSize(item).height * scaleK : (item.dimensions_cm.height / 100) * scaleK
   const ok = fit?.ok ?? true
   return (
-    <group position={[p.x, 0, p.z]} rotation-y={(p.yaw_deg * Math.PI) / 180} onPointerDown={(e) => onDown(e, p)}>
+    <group
+      position={[p.x, 0, p.z]}
+      rotation-y={(p.yaw_deg * Math.PI) / 180}
+      onPointerDown={(e) => onDown(e, p)}
+      userData={{ furniture: true }}
+    >
       {p.mode === '3d' && item.glb_url ? (
         <FurnitureModel item={item} scaleK={scaleK} onFit={onFit} />
       ) : (

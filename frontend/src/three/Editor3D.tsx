@@ -5,6 +5,7 @@ import { Matrix4, Object3D, PerspectiveCamera, type DirectionalLight } from 'thr
 import type { Scene } from '../api/client'
 import { useStudio, type Toggles } from '../store/useStudio'
 import { dropPoint } from './math'
+import { ExportBridge, HelperGroup } from './exportImage'
 import FloorGrid from './FloorGrid'
 import OcclusionMesh from './OcclusionMesh'
 import ShadowFloor from './ShadowFloor'
@@ -58,14 +59,14 @@ function ManualFloorMarks() {
   const manual = useStudio((s) => s.manualFloor)
   if (!manual.active) return null
   return (
-    <>
+    <HelperGroup>
       {manual.points.map((p, i) => (
         <mesh key={i} position={p} renderOrder={5}>
           <sphereGeometry args={[0.03, 16, 16]} />
           <meshBasicMaterial color="#f59e0b" depthTest={false} />
         </mesh>
       ))}
-    </>
+    </HelperGroup>
   )
 }
 
@@ -132,6 +133,7 @@ export default function Editor3D({ scene, toggles, children, onFloorPointerMisse
             onPointerMissed={onFloorPointerMissed}
           >
             <SceneCamera scene={scene} />
+            <ExportBridge />
             <ManualFloorMarks />
             <Suspense fallback={null}>
               <Environment files="/hdri/room_1k.hdr" environmentIntensity={0.6} background={false} />

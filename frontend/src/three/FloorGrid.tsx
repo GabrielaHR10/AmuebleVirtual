@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import { BufferGeometry, Float32BufferAttribute } from 'three'
 import { useStudio } from '../store/useStudio'
+import { markHelper } from './exportImage'
 
 /**
  * Cuadrícula de 1 m sobre el piso (mundo del piso, y = 0.002), solo delante de la cámara.
@@ -20,7 +21,7 @@ export default function FloorGrid({ halfWidth = 8, depth = 14, near = 0.3 }) {
     return g
   }, [halfWidth, depth, near, step])
   return (
-    <lineSegments geometry={geometry} renderOrder={1}>
+    <lineSegments ref={markHelper} geometry={geometry} renderOrder={1}>
       <lineBasicMaterial color="#ffffff" transparent opacity={0.6} depthWrite={false} />
     </lineSegments>
   )
