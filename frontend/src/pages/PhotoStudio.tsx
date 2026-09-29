@@ -1,8 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
-import { getScene, getScenes, uploadScene, type Scene } from '../api/client'
+import { getCatalog, getScene, getScenes, savePlacements, uploadScene, type Scene } from '../api/client'
+import CatalogPanel from '../components/CatalogPanel'
 import RoomEstimateCard from '../components/RoomEstimateCard'
+import SelectedPanel from '../components/SelectedPanel'
+import { useEditorKeys } from '../hooks/useEditorKeys'
 import { useStudio, type Toggles } from '../store/useStudio'
 import Editor3D from '../three/Editor3D'
+import FurnitureLayer from '../three/FurnitureLayer'
 
 const TOGGLE_LABELS: [keyof Toggles, string][] = [
   ['occlusion', 'Oclusión'],
@@ -73,16 +77,43 @@ function UploadBar({ onScene }: { onScene: (s: Scene) => void }) {
   )
 }
 
+/** Guarda los muebles 1 s después del último cambio (PLAN 2.7). */
+function useAutosave() {
+  const { scene, placements, scaleK } = useStudio()
+  const [status, setStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle')
+  useEffect(() => {
+    if (!scene) return
+    if (placements === scene.placements && scaleK === scene.scale_k) return
+    const t = setTimeout(() => {
+      setStatus('saving')
+      savePlacements(scene.id, placements, scaleK)
+        .then(() => setStatus('saved'))
+        .catch(() => setStatus('error'))
+    }, 1000)
+    return () => clearTimeout(t)
+  }, [scene, placements, scaleK])
+  return status
+}
+
 export default function PhotoStudio() {
-  const { scene, setScene, toggles, toggle } = useStudio()
+  const { scene, setScene, setCatalog, toggles, toggle, select } = useStudio()
+  const saveStatus = useAutosave()
+  useEditorKeys(!!scene)
+
+  useEffect(() => {
+    getCatalog().then(setCatalog).catch(() => setCatalog([]))
+  }, [setCatalog])
 
   return (
     <div className="flex h-full flex-col">
       <UploadBar onScene={setScene} />
       <div className="flex min-h-0 flex-1">
-        <div className="min-w-0 flex-1">
+        {scene && <CatalogPanel />}
+        <div className="relative min-w-0 flex-1">
           {scene ? (
-            <Editor3D scene={scene} toggles={toggles} />
+            <Editor3D scene={scene} toggles={toggles} onFloorPointerMissed={() => select(null)}>
+              <FurnitureLayer />
+            </Editor3D>
           ) : (
             <div className="flex h-full items-center justify-center text-stone-500">
               Sube una foto del espacio (idealmente vacío) para empezar.
@@ -91,6 +122,10 @@ export default function PhotoStudio() {
         </div>
         {scene && (
           <aside className="w-72 space-y-3 overflow-y-auto border-l border-stone-200 bg-stone-50 p-3">
+            <SelectedPanel />
+            <p data-testid="save-status" className="text-xs text-stone-500">
+              {{ idle: '', saving: 'Guardando…', saved: 'Cambios guardados', error: 'No se pudo guardar' }[saveStatus]}
+            </p>
             <section className="rounded-lg border border-stone-200 bg-white p-3 text-sm">
               <h3 className="mb-1 font-semibold">Vista</h3>
               {TOGGLE_LABELS.map(([key, label]) => (

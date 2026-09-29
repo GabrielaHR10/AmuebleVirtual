@@ -12,6 +12,7 @@ from typing import Annotated
 import numpy as np
 from fastapi import APIRouter, File, HTTPException, UploadFile
 from PIL import Image
+from pydantic import BaseModel, Field
 
 from app.config import MOGE_MODEL
 from app.geometry.coords import cv_to_three, floor_frame, fov_y_deg, to_column_major
@@ -19,7 +20,7 @@ from app.geometry.floor import FloorResult, detect_floor, draw_floor_debug
 from app.geometry.moge_runner import UnsupportedImageError, load_image, run_moge
 from app.geometry.occlusion import build_occlusion_mesh, export_glb
 from app.geometry.room import draw_grid, estimate_room, room_text
-from app.schemas import CameraInfo, FloorInfo, ImageInfo, RoomEstimate, Scene
+from app.schemas import CameraInfo, FloorInfo, ImageInfo, Placement, RoomEstimate, Scene
 from app.storage import SCENES_DIR, file_url, new_scene_id, read_json, scene_dir, write_json_atomic
 
 SAVE_MAX_SIDE = 2560
@@ -29,6 +30,7 @@ IDENTITY = to_column_major(np.eye(4))
 log = logging.getLogger("santiago.scenes")
 
 _analysis_lock = threading.Lock()  # una foto a la vez (el modelo usa toda la GPU/CPU)
+_save_lock = threading.Lock()
 
 
 def _limit_size(img: Image.Image, max_side: int) -> Image.Image:
@@ -172,3 +174,18 @@ def list_scenes() -> list[Scene]:
 @router.get("/{scene_id}", response_model=Scene)
 def get_scene(scene_id: str) -> Scene:
     return load_scene(scene_id)
+
+
+class PlacementsBody(BaseModel):
+    placements: list[Placement]
+    scale_k: float = Field(default=1.0, gt=0.2, lt=5.0)
+
+
+@router.put("/{scene_id}/placements", response_model=Scene)
+def put_placements(scene_id: str, body: PlacementsBody) -> Scene:
+    """Guarda los muebles ubicados y la escala calibrada (autoguardado del editor)."""
+    with _save_lock:
+        scene = load_scene(scene_id)
+        scene = scene.model_copy(update={"placements": body.placements, "scale_k": body.scale_k})
+        write_json_atomic(scene_dir(scene_id) / "scene.json", scene.model_dump())
+    return scene

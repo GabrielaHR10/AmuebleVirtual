@@ -56,6 +56,16 @@ def test_post_scene_creates_files_and_contract(data_dir, monkeypatch):
     assert client.get(f"/api/scenes/{scene['id']}").json()["id"] == scene["id"]
     assert [s["id"] for s in client.get("/api/scenes").json()] == [scene["id"]]
 
+    placements = [{"uid": "p_1", "item_id": "sofa", "mode": "cutout", "x": 0.4, "z": -3.1, "yaw_deg": 90,
+                   "source": "manual"}]
+    put = client.put(f"/api/scenes/{scene['id']}/placements", json={"placements": placements, "scale_k": 1.1})
+    assert put.status_code == 200, put.text
+    again = client.get(f"/api/scenes/{scene['id']}").json()
+    assert again["placements"][0]["z"] == -3.1 and again["scale_k"] == 1.1
+    bad = client.put(f"/api/scenes/{scene['id']}/placements", json={"placements": [], "scale_k": 0})
+    assert bad.status_code == 422
+    assert client.put("/api/scenes/scn_no_existe/placements", json={"placements": []}).status_code == 404
+
 
 def test_scene_errors_are_in_spanish(data_dir):
     client = TestClient(app)
