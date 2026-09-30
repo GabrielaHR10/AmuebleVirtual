@@ -125,3 +125,4 @@ Versión actual: 0.2.0 · Última actualización: 2026-09-28
 | 10.04.08 (2) alcoba | 1.41 m | 2.6×1.8 m | 3.9 m² | 2.48 m | alta |
 | 10.04.08 (3) | 1.27 m | 1.0×2.8 m | 1.8 m² | 2.27 m | baja |
 | resto (baños, ventana) | — | < 1.5 m² visibles | — | — | baja |
+- 2026-09-30: Windows sin tarjeta gráfica lento → opción A (análisis más rápido en CPU). Medido: el modelo pequeño casi no ayuda (204 vs 259 s); el cuello de botella eran las convoluciones del decodificador → formato channels_last (mismo resultado, ~7×) + resolución interna nivel 5 (`MOGE_CPU_LEVEL`): 259 s → 39 s por foto en CPU (4 hilos, Mac), piso igual (1.233 vs 1.235 m), profundidad 1.6 % distinta.

@@ -16,6 +16,7 @@ SAMPLES_DIR = REPO_DIR / "samples"
 load_dotenv(REPO_DIR / ".env")
 
 MOGE_MODEL = os.getenv("MOGE_MODEL", "Ruicheng/moge-2-vitb-normal")
+MOGE_CPU_LEVEL = int(os.getenv("MOGE_CPU_LEVEL", "5"))  # resolución interna de MoGe sin tarjeta gráfica (0–9)
 
 HOST = "127.0.0.1"
 PORT = 8000
