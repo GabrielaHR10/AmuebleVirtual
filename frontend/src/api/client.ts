@@ -258,3 +258,7 @@ export async function waitJob(id: string, onProgress: (j: Job) => void): Promise
     await new Promise((r) => setTimeout(r, 1000))
   }
 }
+
+export async function generate3d(itemId: string): Promise<{ job_id: string }> {
+  return parse(await fetch(`/api/catalog/${encodeURIComponent(itemId)}/generate-3d`, { method: 'POST' }))
+}

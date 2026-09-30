@@ -24,6 +24,11 @@ Cada modelo o asset que use el proyecto se registra aquí.
 | Poly Haven `potted_plant_02` | modelo 3D | https://polyhaven.com/a/potted_plant_02 | CC0 | Catálogo semilla |
 | Poly Haven HDRI `lebombo` (1k) | iluminación | https://polyhaven.com/a/lebombo | CC0 | `frontend/public/hdri/room_1k.hdr` |
 | glTF-Transform CLI | herramienta (solo al crear el catálogo) | https://gltf-transform.dev | MIT | Convertir/optimizar GLB |
+| TripoSR (código, commit `107cefd`, en `backend/app/vendor/tsr`) | librería | https://github.com/VAST-AI-Research/TripoSR | MIT | Foto de mueble → modelo 3D (local) |
+| `stabilityai/TripoSR` | pesos de modelo | https://huggingface.co/stabilityai/TripoSR | MIT | Modelo de TripoSR |
+| `facebook/dino-vitb16` | pesos de modelo | https://huggingface.co/facebook/dino-vitb16 | Apache-2.0 | Codificador de imagen de TripoSR |
+| fast-simplification | librería | https://github.com/pyvista/fast-simplification | MIT | Simplificar las mallas 3D generadas |
+| transformers, einops, omegaconf | librerías | PyPI | Apache-2.0 / MIT / BSD-3 | Dependencias de TripoSR |
 | onnxruntime | librería | https://github.com/microsoft/onnxruntime | MIT | Ejecuta los modelos de recorte |
 
 **No usado por licencia:** `pillow-heif` (el plan lo pedía para HEIC) — sus wheels traen x265 y quedan **GPLv2**.

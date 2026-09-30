@@ -75,6 +75,17 @@ def extract_dimensions(table_image: Annotated[UploadFile, File()]) -> dict:
         raise HTTPException(503, str(e)) from None
 
 
+@router.post("/{item_id}/generate-3d")
+def generate_3d(item_id: str) -> dict:
+    """Foto del mueble → modelo 3D con TripoSR, en segundo plano (PLAN 6, versión local)."""
+    from app import jobs
+    from app.catalog.to3d import generate_for_item
+
+    if not service.is_valid_id(item_id) or service.get_item(item_id) is None:
+        raise HTTPException(404, "Mueble no encontrado")
+    return {"job_id": jobs.start("generate-3d", lambda p: generate_for_item(item_id, p))}
+
+
 @router.delete("/{item_id}")
 def delete_item(item_id: str) -> dict:
     item = service.get_item(item_id) if service.is_valid_id(item_id) else None

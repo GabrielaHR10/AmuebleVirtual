@@ -67,6 +67,13 @@ Versión actual: 0.2.0 · Última actualización: 2026-09-28
 - [x] 7.1 Release zip — nota: `crear_release.sh` copia solo archivos del repo (git ls-files) + interfaz compilada; por defecto sin muebles de fotos de tiendas (`--con-fotos-de-tienda` los incluye). v0.2.0: 6.1 MB, 10 muebles CC0. Probado descomprimido en el Mac: instalar (~2 min con caché) → health, página, catálogo y análisis de foto OK. `instalar.command` ahora instala uv con el instalador oficial (sin Homebrew). CI: jobs `build-release` (Linux) + `release-smoke` (Windows limpio: instalar.bat instala uv y modelos, iniciar.bat, health, página y análisis de una foto) en workflow_dispatch. Run 36589177526: todo verde (Windows limpio instaló uv + modelos, arrancó y analizó una foto).
 - [ ] 7.2 Demo en vivo temporal (opcional) — nota:
 
+## Fase R — Realismo automático y video con muebles (pedido de Gabriela, 2026-09-30)
+- [x] R.1 Muebles de foto → 3D local con TripoSR (MIT, en `app/vendor/tsr`, ~20–30 s/mueble en MPS) — nota: `catalog/to3d.py`: alineación del giro (huella de área mínima; bug de signo encontrado con vista cenital), escalado por eje a las medidas reales de la tabla, **textura con la foto real proyectada** (cámara de TripoSR: +x, 1.9, fov 40°; z-buffer 512, solo donde el recorte es opaco, bordes rellenados), colores del resto calibrados contra la foto, normales exportadas y material mate (glTF asume metálico = 1). En el editor: albedo 0.62 para no sumar la luz del estudio. Endpoint `POST /api/catalog/{id}/generate-3d` (trabajo) + botón "Convertir a 3D". Sofás de Gabriela convertidos (Gretel no: su foto trae sillas). Mallas simplificadas a 25k caras (fast-simplification, MIT): ~1 MB por mueble. `transformers` fijado < 5 (renombró capas de ViT).
+- [x] R.2 ¿Grano/desenfoque de la foto? — nota: medido: la nitidez del mueble renderizado ya coincide con la foto (0.31 vs 0.30) y las fotos de WhatsApp casi no tienen grano → no se aplica.
+- [ ] R.3 Luz del entorno desde la propia foto — nota:
+- [ ] R.4 Video: seguimiento de cámara (pycolmap) — nota:
+- [ ] R.5 Video: profundidad por fotograma (oclusión) y render MP4 — nota:
+
 ## Decisiones tomadas con Gabriela
 - 2026-09-28: Mesa Gretel se deja como dice la tabla: frente (width) 80 cm, fondo (depth) 140 cm (opción B).
 - 2026-09-28: la app arranca en el Mac de Gabriela con doble clic.
@@ -76,6 +83,7 @@ Versión actual: 0.2.0 · Última actualización: 2026-09-28
 - 2026-09-29: "tamaño correcto, pero posiciones poco naturales y no se ve realista" → prioridad: ubicación natural (Fase 3) y realismo (Fase 4).
 - 2026-09-29: IA local solo para leer tablas de medidas; para ubicar muebles se usa la sugerencia básica (opción A).
 - 2026-09-29: nada de plantas/decoración en el recorrido desde la puerta de entrada; recortes 2D en ángulo se escalan al ancho real.
+- 2026-09-30: prioridad nueva: realismo automático + video con muebles específicos. Aprobó probar TripoSR (MIT) local; usar el video que ya existe.
 - 2026-09-29: video: bastan los fotogramas; se omiten 5.2–5.3 y la Fase 6 → Fase 7.
 - 2026-09-29: retoque con IA (Hugging Face) descartado: cambia el cuarto y los muebles, y la cuota gratis da 1 imagen al día. Se sigue con el retoque clásico (opción A).
 

@@ -94,3 +94,29 @@ def test_proportion_warning_and_table_image(data_dir):
     assert "de frente" in item["photo_warning"]  # recorte 2.3 vs. tabla 0.5
     assert (data_dir / "catalog" / "silla" / "medidas.jpg").is_file()
     assert not item["against_wall"]
+
+
+def test_generate_3d_endpoint(data_dir, monkeypatch):
+    import time
+
+    from app.catalog import to3d
+
+    client = TestClient(app)
+    item = client.post("/api/catalog", data=_form(), files={"photo": ("s.png", _png(), "image/png")}).json()
+
+    def fake_glb(cutout_path, out, dims):
+        out.write_bytes(b"glb")
+        return out
+
+    monkeypatch.setattr(to3d, "photo_to_glb", fake_glb)
+    job_id = client.post(f"/api/catalog/{item['id']}/generate-3d").json()["job_id"]
+    for _ in range(100):
+        job = client.get(f"/api/jobs/{job_id}").json()
+        if job["status"] in ("done", "error"):
+            break
+        time.sleep(0.05)
+    assert job["status"] == "done", job
+    updated = next(i for i in client.get("/api/catalog").json() if i["id"] == item["id"])
+    assert updated["preferred_mode"] == "3d" and updated["glb_url"].endswith("/model.glb")
+    assert updated["cutout_url"]  # se puede volver al recorte
+    assert client.post("/api/catalog/no-existe/generate-3d").status_code == 404

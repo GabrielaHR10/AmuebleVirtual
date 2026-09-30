@@ -1,6 +1,6 @@
 import { useEffect, useMemo } from 'react'
 import { useGLTF } from '@react-three/drei'
-import { Box3, DoubleSide, Group, Mesh, Vector3, type Material } from 'three'
+import { Box3, DoubleSide, Group, Mesh, Vector3, type Material, type MeshStandardMaterial } from 'three'
 import type { CatalogItem } from '../api/client'
 
 export interface ModelFit {
@@ -19,12 +19,33 @@ export interface Look {
   doubleSide?: boolean
 }
 
+/** Modelos generados desde la foto (TripoSR): su color ya trae la luz del estudio de la tienda. */
+export function isPhotoModel(item: CatalogItem): boolean {
+  return item.notes.some((n) => n.startsWith('Modelo 3D generado'))
+}
+
+// Albedo reducido para los modelos "horneados": la luz del cuarto les agrega forma y dirección sin
+// sumarse a la luz que ya trae la foto (si no, se ven sobreexpuestos).
+const BAKED_ALBEDO = 0.62
+
 export function fitModel(source: Group, item: CatalogItem, scaleK: number, look?: Look): ModelFit {
   const inner = source.clone(true)
+  const baked = isPhotoModel(item)
   inner.traverse((o) => {
     if (o instanceof Mesh) {
       o.castShadow = !look
       o.receiveShadow = !look
+      if (baked && !look) {
+        const mats = (Array.isArray(o.material) ? o.material : [o.material]).map((m: Material) => {
+          const c = m.clone() as MeshStandardMaterial
+          c.color.multiplyScalar(BAKED_ALBEDO)
+          c.roughness = 1
+          c.metalness = 0
+          c.envMapIntensity = 0.5
+          return c
+        })
+        o.material = Array.isArray(o.material) ? mats : mats[0]
+      }
       if (look) {
         // material propio (clonado) para no volver transparentes los muebles reales
         const mats = (Array.isArray(o.material) ? o.material : [o.material]).map((m: Material) => {

@@ -3,14 +3,49 @@ import {
   createCatalogItem,
   deleteCatalogItem,
   extractDimensions,
+  generate3d,
   getCatalog,
+  waitJob,
   type CatalogItem,
   type Category,
   type ExtractedDimensions,
+  type Job,
 } from '../api/client'
 import { CATEGORY_LABELS, formatDims, thumbOf } from '../catalog'
 
-function ItemCard({ item, onDelete }: { item: CatalogItem; onDelete: (id: string) => void }) {
+function Convert3d({ item, onDone }: { item: CatalogItem; onDone: () => void }) {
+  const [job, setJob] = useState<Job | null>(null)
+  const [error, setError] = useState<string | null>(null)
+  if (!item.cutout_url) return null
+  const photoModel = item.notes.some((n) => n.startsWith('Modelo 3D generado'))
+  if (item.glb_url && !photoModel) return null // ya es un modelo 3D de catálogo (Poly Haven)
+  async function run() {
+    setError(null)
+    try {
+      const { job_id } = await generate3d(item.id)
+      await waitJob(job_id, setJob)
+      onDone()
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e))
+    } finally {
+      setJob(null)
+    }
+  }
+  return (
+    <div className="pt-1 text-xs">
+      {job ? (
+        <span className="text-sky-700">{job.message}</span>
+      ) : (
+        <button onClick={run} className="text-sky-700 underline">
+          {photoModel ? 'Regenerar 3D' : 'Convertir a 3D (~30 s)'}
+        </button>
+      )}
+      {error && <p className="text-red-700">{error}</p>}
+    </div>
+  )
+}
+
+function ItemCard({ item, onDelete, onChanged }: { item: CatalogItem; onDelete: (id: string) => void; onChanged: () => void }) {
   const [confirming, setConfirming] = useState(false)
   const thumb = thumbOf(item)
   return (
@@ -21,7 +56,12 @@ function ItemCard({ item, onDelete }: { item: CatalogItem; onDelete: (id: string
       <h3 className="mt-2 text-sm font-medium leading-tight">{item.name}</h3>
       <p className="text-sm text-stone-700">{formatDims(item.dimensions_cm)}</p>
       <p className="text-xs text-stone-500">
-        {CATEGORY_LABELS[item.category]} · {item.preferred_mode === '3d' ? 'Modelo 3D' : 'Recorte de foto'}
+        {CATEGORY_LABELS[item.category]} ·{' '}
+        {item.preferred_mode === '3d'
+          ? item.notes.some((n) => n.startsWith('Modelo 3D generado'))
+            ? '3D desde la foto'
+            : 'Modelo 3D'
+          : 'Recorte de foto'}
       </p>
       <div className="mt-1 flex flex-wrap gap-1">
         {!item.dimensions_verified && (
@@ -31,6 +71,7 @@ function ItemCard({ item, onDelete }: { item: CatalogItem; onDelete: (id: string
           <span className="rounded bg-orange-100 px-1.5 py-0.5 text-xs text-orange-800">{item.photo_warning}</span>
         )}
       </div>
+      <Convert3d item={item} onDone={onChanged} />
       {item.user_created && (
         <div className="mt-auto pt-2 text-xs">
           {confirming ? (
@@ -204,7 +245,7 @@ export default function CatalogAdmin() {
         ) : (
           <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
             {items.map((item) => (
-              <ItemCard key={item.id} item={item} onDelete={remove} />
+              <ItemCard key={item.id} item={item} onDelete={remove} onChanged={load} />
             ))}
           </ul>
         )}

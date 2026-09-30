@@ -8,6 +8,9 @@ export default defineConfig({
   testDir: './e2e',
   // un solo servidor con un solo modelo de IA: las pruebas en paralelo se estorban (análisis de ~1 min en video)
   workers: 1,
+  // Chromium sin pantalla falla a veces al capturar después de muchas escenas WebGL seguidas
+  // ("Unable to capture screenshot", incluso en la página inicial): se permite 1 reintento.
+  retries: 1,
   outputDir: './test-results/artifacts',
   timeout: 60_000,
   use: {
