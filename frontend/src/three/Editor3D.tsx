@@ -1,6 +1,6 @@
 import { Suspense, useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { Canvas, useThree, type ThreeEvent } from '@react-three/fiber'
-import { Environment, SoftShadows } from '@react-three/drei'
+import { SoftShadows } from '@react-three/drei'
 import { Matrix4, Object3D, PerspectiveCamera, type DirectionalLight } from 'three'
 import type { Scene } from '../api/client'
 import { useStudio, type Toggles } from '../store/useStudio'
@@ -9,6 +9,7 @@ import { ExportBridge, HelperGroup } from './exportImage'
 import FloorGrid from './FloorGrid'
 import { autoLight, lightPosition } from './lighting'
 import OcclusionMesh from './OcclusionMesh'
+import PhotoEnvironment from './PhotoEnvironment'
 import ShadowFloor from './ShadowFloor'
 
 /** Cámara fija a la foto: mismo FOV y pose (identidad en fotos; la Fase 5 usará otras poses). */
@@ -152,7 +153,7 @@ export default function Editor3D({ scene, toggles, children, onFloorPointerMisse
             <Exposure />
             <ManualFloorMarks />
             <Suspense fallback={null}>
-              <Environment files="/hdri/room_1k.hdr" environmentIntensity={0.6} background={false} />
+              <PhotoEnvironment scene={scene} />
               {/* Con piso manual la malla incluye el piso real y taparía los muebles: solo se usa para marcar */}
               {((toggles.occlusion && !scene.warnings.includes('piso_manual')) || manualActive) &&
                 scene.assets.occlusion_glb && (
