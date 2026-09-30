@@ -28,6 +28,7 @@ Cada modelo o asset que use el proyecto se registra aquí.
 | `stabilityai/TripoSR` | pesos de modelo | https://huggingface.co/stabilityai/TripoSR | MIT | Modelo de TripoSR |
 | `facebook/dino-vitb16` | pesos de modelo | https://huggingface.co/facebook/dino-vitb16 | Apache-2.0 | Codificador de imagen de TripoSR |
 | fast-simplification | librería | https://github.com/pyvista/fast-simplification | MIT | Simplificar las mallas 3D generadas |
+| pycolmap | librería | https://github.com/colmap/pycolmap | BSD-3-Clause | Seguimiento de cámara en videos (SfM) |
 | transformers, einops, omegaconf | librerías | PyPI | Apache-2.0 / MIT / BSD-3 | Dependencias de TripoSR |
 | onnxruntime | librería | https://github.com/microsoft/onnxruntime | MIT | Ejecuta los modelos de recorte |
 

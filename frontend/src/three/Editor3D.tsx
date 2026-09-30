@@ -1,13 +1,14 @@
 import { Suspense, useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { Canvas, useThree, type ThreeEvent } from '@react-three/fiber'
 import { SoftShadows } from '@react-three/drei'
-import { Matrix4, Object3D, PerspectiveCamera, type DirectionalLight } from 'three'
+import { Matrix4, PerspectiveCamera } from 'three'
 import type { Scene } from '../api/client'
 import { useStudio, type Toggles } from '../store/useStudio'
 import { dropPoint } from './math'
 import { ExportBridge, HelperGroup } from './exportImage'
 import FloorGrid from './FloorGrid'
-import { autoLight, lightPosition } from './lighting'
+import FloorLights from './FloorLights'
+import { autoLight } from './lighting'
 import OcclusionMesh from './OcclusionMesh'
 import PhotoEnvironment from './PhotoEnvironment'
 import ShadowFloor from './ShadowFloor'
@@ -33,37 +34,6 @@ function Exposure() {
     gl.toneMappingExposure = exposure
   }, [gl, exposure])
   return null
-}
-
-/** Luces del grupo del piso: la direccional apunta al centro del piso visible. */
-function FloorLights({ target }: { target: [number, number, number] }) {
-  const light = useRef<DirectionalLight>(null)
-  const settings = useStudio((s) => s.light)
-  const [targetObj] = useState(() => new Object3D())
-  useLayoutEffect(() => {
-    targetObj.position.set(...target)
-    if (light.current) light.current.target = targetObj
-  }, [target, targetObj])
-  return (
-    <>
-      <primitive object={targetObj} />
-      <hemisphereLight args={[settings.hemiColor, '#8d7b68', settings.hemiIntensity]} />
-      <directionalLight
-        ref={light}
-        position={lightPosition(settings, target)}
-        intensity={1.6}
-        castShadow
-        shadow-mapSize={[2048, 2048]}
-        shadow-camera-left={-6}
-        shadow-camera-right={6}
-        shadow-camera-top={6}
-        shadow-camera-bottom={-6}
-        shadow-camera-near={0.5}
-        shadow-camera-far={20}
-        shadow-bias={-0.0005}
-      />
-    </>
-  )
 }
 
 /** Puntos marcados para el piso manual (coords de cámara/mundo, fuera del grupo del piso). */
@@ -119,6 +89,7 @@ export default function Editor3D({ scene, toggles, children, onFloorPointerMisse
   }, [frame, scene])
   const maskUrl = scene.assets.floor_mask_png
   const setLight = useStudio((s) => s.setLight)
+  const light = useStudio((s) => s.light)
   useEffect(() => setLight(autoLight(scene, center)), [scene, center, setLight]) // ajuste automático de luz
   const manualActive = useStudio((s) => s.manualFloor.active)
   const onPick = (e: ThreeEvent<MouseEvent>) => {
@@ -162,7 +133,7 @@ export default function Editor3D({ scene, toggles, children, onFloorPointerMisse
             </Suspense>
             {frame && (
               <group matrixAutoUpdate={false} matrix={frame}>
-                <FloorLights target={center} />
+                <FloorLights target={center} settings={light} />
                 <ShadowFloor />
                 {toggles.grid && <FloorGrid />}
                 <Suspense fallback={null}>{children}</Suspense>

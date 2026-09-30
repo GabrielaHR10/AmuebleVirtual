@@ -262,3 +262,56 @@ export async function waitJob(id: string, onProgress: (j: Job) => void): Promise
 export async function generate3d(itemId: string): Promise<{ job_id: string }> {
   return parse(await fetch(`/api/catalog/${encodeURIComponent(itemId)}/generate-3d`, { method: 'POST' }))
 }
+
+// ---------- Video con muebles (R.4/R.5) ----------
+
+export interface TrackFrame {
+  i: number
+  t: number
+  url: string
+  matrix_world: number[] // cámara three (column-major), relativa al fotograma de referencia
+}
+
+export interface ClipTrack {
+  video_id: string
+  clip_id: string
+  t0: number
+  t1: number
+  fps: number
+  width: number
+  height: number
+  fov_y_deg: number
+  registered: number
+  ref_index: number
+  ref_scene_id: string
+  frames: TrackFrame[]
+  video_url: string | null
+}
+
+const clipUrl = (videoId: string, clipId: string) =>
+  `/api/videos/${encodeURIComponent(videoId)}/clips/${encodeURIComponent(clipId)}`
+
+export async function createClip(videoId: string, t0: number, t1: number): Promise<{ clip_id: string; job_id: string }> {
+  return parse(
+    await fetch(`/api/videos/${encodeURIComponent(videoId)}/clips`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ t0, t1 }),
+    }),
+  )
+}
+
+export async function getClip(videoId: string, clipId: string): Promise<ClipTrack> {
+  return parse<ClipTrack>(await fetch(clipUrl(videoId, clipId)))
+}
+
+export async function uploadClipFrame(videoId: string, clipId: string, k: number, color: Blob, depth: Blob): Promise<void> {
+  const form = new FormData()
+  form.append('color', color, 'color.png')
+  form.append('depth', depth, 'depth.png')
+  await parse(await fetch(`${clipUrl(videoId, clipId)}/frames/${k}`, { method: 'POST', body: form }))
+}
+
+export async function composeClip(videoId: string, clipId: string): Promise<{ job_id: string }> {
+  return parse(await fetch(`${clipUrl(videoId, clipId)}/compose`, { method: 'POST' }))
+}

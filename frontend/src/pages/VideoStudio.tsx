@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { createKeyframeScenes, getScene, getVideo, uploadVideo, waitJob, type Job, type VideoMeta } from '../api/client'
 import { useStudio } from '../store/useStudio'
+import VideoClip from './VideoClip'
 
 const LAST_VIDEO_KEY = 'estudio.lastVideo'
 
@@ -137,6 +138,8 @@ export default function VideoStudio({ onOpenScene }: { onOpenScene: () => void }
           )}
         </section>
       )}
+
+      {meta && <VideoClip key={meta.video_id} meta={meta} onOpenScene={onOpenScene} />}
     </div>
   )
 }
